@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #f8fafc;
+}
+
+/* Page Transitions */
+.page-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Navigation */
+.nav-link-active {
+    color: #16a34a;
+    font-weight: 800;
+    border-bottom: 2px solid #16a34a;
+}
+
+/* Eco Tree Animation */
+.eco-tree {
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.eco-tree:hover {
+    transform: scale(1.15);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+/* Editable Input States */
+.editable-input:disabled {
+    background: transparent;
+    border-color: transparent;
+    color: #334155;
+    cursor: default;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.editable-input:not(:disabled) {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    padding: 0.25rem 0.5rem;
+    color: #16a34a;
+    border-radius: 0.5rem;
+    border-width: 1px;
+}
+
+/* Flip Card for Trivia */
+.flip-card {
+    perspective: 1000px;
+    height: 260px;
+}
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+}
+.flip-card.flipped .flip-card-inner {
+    transform: rotateY(180deg);
+}
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+.flip-card-front {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    border: 2px solid #bbf7d0;
+}
+.flip-card-back {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: white;
+    transform: rotateY(180deg);
+    flex-direction: column;
+    cursor: default;
+}
+
+/* Modal */
+.modal-overlay {
+    display: none;
+}
+.modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Alert Toast */
+.alert-toast {
+    animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 4.7s forwards;
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
