@@ -6,7 +6,7 @@ use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\SimulasiController;
+use App\Http\Controllers\DaftarHargaController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminTransaksiController;
@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi');
     Route::post('/transaksi', [TransaksiController::class, 'store'])->name('transaksi.store');
     Route::get('/panduan', fn() => view('user.panduan'))->name('panduan');
-    Route::get('/simulasi', [SimulasiController::class, 'index'])->name('simulasi');
+    Route::get('/daftar_harga', [DaftarHargaController::class, 'index'])->name('daftar_harga');
     Route::get('/riwayat', [RiwayatController::class, 'index'])->name('riwayat');
     Route::get('/voucher', [VoucherController::class, 'index'])->name('voucher');
     Route::post('/voucher/redeem', [VoucherController::class, 'redeem'])->name('voucher.redeem');

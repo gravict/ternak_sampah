@@ -33,7 +33,7 @@
                 <a href="{{ route('dashboard') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('dashboard') ? 'nav-link-active' : 'border-transparent' }}">Dashboard</a>
                 <a href="{{ route('transaksi') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('transaksi') ? 'nav-link-active' : 'border-transparent' }}">Transaksi</a>
                 <a href="{{ route('panduan') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('panduan') ? 'nav-link-active' : 'border-transparent' }}">Panduan</a>
-                <a href="{{ route('simulasi') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('simulasi') ? 'nav-link-active' : 'border-transparent' }}">Daftar Harga</a>
+                <a href="{{ route('daftar_harga') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('daftar_harga') ? 'nav-link-active' : 'border-transparent' }}">Daftar Harga</a>
                 <a href="{{ route('riwayat') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('riwayat') ? 'nav-link-active' : 'border-transparent' }}">Riwayat</a>
                 <a href="{{ route('voucher') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('voucher') ? 'nav-link-active' : 'border-transparent' }}">Voucher</a>
                 <a href="{{ route('berita') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('berita') ? 'nav-link-active' : 'border-transparent' }}">Berita & Edukasi</a>
