@@ -41,11 +41,7 @@
                                 @csrf
                                 <button type="submit" class="bg-orange-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-orange-600 transition shadow-sm">Terima & Timbang</button>
                             </form>
-                            <form action="{{ route('admin.tolak', $t->id) }}" method="POST" onsubmit="return promptReject(this)">
-                                @csrf
-                                <input type="hidden" name="reject_reason" id="reject-{{ $t->id }}">
-                                <button type="submit" class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-red-600 transition shadow-sm">Tolak</button>
-                            </form>
+                            <button type="button" onclick="openRejectModal({{ $t->id }}, '{{ $t->user->name }}')" class="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-red-600 transition shadow-sm">Tolak</button>
                         </td>
                     </tr>
                 @empty
@@ -57,13 +53,105 @@
 </div>
 @endsection
 
+{{-- Reject Modal --}}
+@section('modals')
+<div id="reject-modal" class="fixed inset-0 z-[300] items-center justify-center bg-black/50 backdrop-blur-sm hidden" style="display:none;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 relative" onclick="event.stopPropagation()">
+        <button onclick="closeRejectModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+
+        <div class="text-center mb-5">
+            <div class="w-14 h-14 bg-red-100 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3">🚫</div>
+            <h3 class="text-xl font-extrabold text-slate-800">Tolak Transaksi</h3>
+            <p class="text-sm text-slate-500 mt-1">Transaksi <span id="modal-trx-info" class="font-bold text-slate-700"></span></p>
+        </div>
+
+        <form id="reject-form" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label class="text-xs font-bold text-slate-600 mb-2 block">Pilih Alasan Penolakan</label>
+                <div class="space-y-2" id="reason-options">
+                    @foreach([
+                        'Foto tidak jelas atau tidak sesuai',
+                        'Kategori sampah tidak sesuai',
+                        'Sampah tidak memenuhi standar kualitas',
+                        'Berat estimasi tidak realistis',
+                        'Sampah terkontaminasi bahan berbahaya',
+                        'Data transaksi tidak lengkap',
+                    ] as $reason)
+                        <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-red-50 hover:border-red-200 transition has-[:checked]:bg-red-50 has-[:checked]:border-red-400">
+                            <input type="radio" name="reject_preset" value="{{ $reason }}" class="accent-red-500" onchange="updateRejectReason()">
+                            <span class="text-sm font-semibold text-slate-700">{{ $reason }}</span>
+                        </label>
+                    @endforeach
+                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-red-50 hover:border-red-200 transition has-[:checked]:bg-red-50 has-[:checked]:border-red-400">
+                        <input type="radio" name="reject_preset" value="__other__" class="accent-red-500" onchange="updateRejectReason()">
+                        <span class="text-sm font-semibold text-slate-700">Lainnya (tulis sendiri)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="custom-reason-area" class="hidden">
+                <textarea id="custom-reason-text" placeholder="Tulis alasan penolakan..." class="w-full p-3 border border-slate-200 rounded-xl h-20 outline-none focus:border-red-400 text-sm"></textarea>
+            </div>
+
+            <input type="hidden" name="reject_reason" id="final-reject-reason">
+
+            <button type="submit" onclick="return submitReject()" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition shadow-md">Konfirmasi Penolakan</button>
+        </form>
+    </div>
+</div>
+@endsection
+
 @section('scripts')
 <script>
-function promptReject(form) {
-    const reason = prompt('Masukkan alasan penolakan:');
-    if (!reason) return false;
-    form.querySelector('input[name="reject_reason"]').value = reason;
+function openRejectModal(id, name) {
+    const modal = document.getElementById('reject-modal');
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+    document.getElementById('reject-form').action = `/admin/tolak/${id}`;
+    document.getElementById('modal-trx-info').innerText = `#${id} — ${name}`;
+    // Reset
+    document.querySelectorAll('input[name="reject_preset"]').forEach(r => r.checked = false);
+    document.getElementById('custom-reason-area').classList.add('hidden');
+    document.getElementById('custom-reason-text').value = '';
+}
+
+function closeRejectModal() {
+    const modal = document.getElementById('reject-modal');
+    modal.style.display = 'none';
+    modal.classList.add('hidden');
+}
+
+function updateRejectReason() {
+    const selected = document.querySelector('input[name="reject_preset"]:checked');
+    if (selected && selected.value === '__other__') {
+        document.getElementById('custom-reason-area').classList.remove('hidden');
+    } else {
+        document.getElementById('custom-reason-area').classList.add('hidden');
+    }
+}
+
+function submitReject() {
+    const selected = document.querySelector('input[name="reject_preset"]:checked');
+    if (!selected) {
+        alert('Pilih alasan penolakan terlebih dahulu.');
+        return false;
+    }
+    let reason = selected.value;
+    if (reason === '__other__') {
+        reason = document.getElementById('custom-reason-text').value.trim();
+        if (!reason) {
+            alert('Tulis alasan penolakan.');
+            return false;
+        }
+    }
+    document.getElementById('final-reject-reason').value = reason;
     return true;
 }
+
+// Close modal on backdrop click
+document.getElementById('reject-modal')?.addEventListener('click', function(e) {
+    if (e.target === this) closeRejectModal();
+});
 </script>
 @endsection

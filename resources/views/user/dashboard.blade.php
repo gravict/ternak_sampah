@@ -115,18 +115,63 @@ async function fetchAndIntegrate() {
             document.getElementById('dash-news-desc').innerText = new Date(main.pubDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ' · Sumber: Google News';
             document.getElementById('dash-news-container').onclick = () => window.open(main.link, '_blank');
             generateAITrivia(articles);
+        } else {
+            showTriviaError('Tidak ada berita ditemukan hari ini.');
         }
     } catch (e) {
         document.getElementById('dash-news-title').innerText = 'Tidak dapat terhubung ke Google News';
         document.getElementById('dash-news-desc').innerText = 'Cek koneksi internet dan refresh halaman.';
+        showTriviaError('Gagal memuat berita untuk trivia.');
     }
 }
 
-function generateAITrivia(articles) {
-    const titles = articles.slice(0, 5).map(a => a.title.split(' - ')[0]);
-    const triviaData = aiCreateQuestions(titles);
+async function generateAITrivia(articles) {
+    const container = document.getElementById('trivia-container');
+
+    // Show loading state
+    container.innerHTML = `
+        <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
+            <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+            <p class="text-sm text-slate-500 font-bold">🤖 Gemini AI sedang membuat trivia dari berita hari ini...</p>
+            <p class="text-xs text-slate-400 mt-1">Memproses ${Math.min(articles.length, 5)} judul berita terbaru...</p>
+        </div>
+    `;
+
+    const headlines = articles.slice(0, 5).map(a => a.title.split(' - ')[0]);
+
+    try {
+        const res = await fetch('{{ route("trivia.generate") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ headlines }),
+        });
+
+        const data = await res.json();
+
+        if (data.questions && data.questions.length > 0) {
+            renderTrivia(data.questions, data.source);
+        } else {
+            showTriviaError('AI tidak mengembalikan pertanyaan. Coba refresh.');
+        }
+    } catch (e) {
+        console.error('Trivia fetch error:', e);
+        showTriviaError('Gagal menghubungi server trivia. Coba refresh halaman.');
+    }
+}
+
+function renderTrivia(triviaData, source) {
     const container = document.getElementById('trivia-container');
     container.innerHTML = '';
+
+    // Source badge
+    const badgeHTML = source === 'gemini' 
+        ? `<span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-indigo-100 text-indigo-700 border-indigo-200">✨ Powered by Gemini AI</span>`
+        : '';
+
     triviaData.forEach((q, idx) => {
         const labels = ['A', 'B', 'C', 'D'];
         let optionsHTML = '';
@@ -137,23 +182,30 @@ function generateAITrivia(articles) {
         container.innerHTML += `
         <div class="flip-card" id="card-${idx+1}" onclick="flipCard('card-${idx+1}')">
             <div class="flip-card-inner">
-                <div class="flip-card-front"><p class="font-bold text-slate-700 px-4">${q.question}</p><span class="absolute bottom-4 text-xs text-indigo-600 font-bold bg-indigo-100 px-3 py-1 rounded-full">Tap untuk balik</span></div>
-                <div class="flip-card-back" onclick="event.stopPropagation()"><p class="font-bold text-sm mb-3">Pilih jawabanmu:</p><div class="flex flex-col gap-2 w-full px-2" id="options-${idx+1}">${optionsHTML}</div><p id="feedback-${idx+1}" class="hidden mt-3 text-xs font-bold bg-white text-green-700 py-1 px-3 rounded-full"></p></div>
+                <div class="flip-card-front">
+                    ${badgeHTML}
+                    <p class="font-bold text-slate-700 px-4">${q.question}</p>
+                    <span class="absolute bottom-4 text-xs text-indigo-600 font-bold bg-indigo-100 px-3 py-1 rounded-full">Tap untuk balik</span>
+                </div>
+                <div class="flip-card-back" onclick="event.stopPropagation()">
+                    <p class="font-bold text-sm mb-3">Pilih jawabanmu:</p>
+                    <div class="flex flex-col gap-2 w-full px-2" id="options-${idx+1}">${optionsHTML}</div>
+                    <p id="feedback-${idx+1}" class="hidden mt-3 text-xs font-bold bg-white text-green-700 py-1 px-3 rounded-full"></p>
+                </div>
             </div>
         </div>`;
     });
 }
 
-function aiCreateQuestions(titles) {
-    const questions = [];
-    const keywords = ['sampah','limbah','TPA','daur ulang','plastik','organik','kompos','bank sampah','pengelolaan','pencemaran','polusi','lingkungan'];
-    function extractTopics(t) { const found = []; const l = t.toLowerCase(); keywords.forEach(k => { if(l.includes(k)) found.push(k.charAt(0).toUpperCase()+k.slice(1)); }); return [...new Set(found)]; }
-    function shuffle(a) { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
-    function swc(c,w) { const a=[c,...w.slice(0,3)]; const s=shuffle(a); return {options:s, correctIndex:s.indexOf(c)}; }
-    if(titles[0]) { const t=extractTopics(titles[0]); const c=t[0]||titles[0].split(' ').slice(0,4).join(' '); const w=shuffle(['Polusi Udara','Emisi Karbon','Deforestasi','Limbah B3','Energi Terbarukan']).slice(0,3); questions.push({question:`Apa topik utama dari berita: "${titles[0].length>60?titles[0].slice(0,57)+'...':titles[0]}"?`, ...swc(c,w)}); }
-    if(titles[1]) { const opts=swc(titles[1].length>50?titles[1].slice(0,47)+'...':titles[1], shuffle(['Indonesia Larang Total Kantong Plastik','Pabrik Daur Ulang Terbesar ASEAN','Robot AI Pembersih Sungai']).slice(0,3)); questions.push({question:'Manakah berita asli hari ini dari Google News?', ...opts}); }
-    while(questions.length<2) { questions.push({question:'Ke mana sebaiknya menyerahkan sampah bernilai ekonomi?', ...swc('Bank Sampah',['TPA Ilegal','Sungai','Pembakaran Terbuka'])}); }
-    return questions;
+function showTriviaError(msg) {
+    const container = document.getElementById('trivia-container');
+    container.innerHTML = `
+        <div class="col-span-2 bg-white rounded-3xl border border-red-100 shadow-sm p-8 text-center">
+            <p class="text-3xl mb-3">😢</p>
+            <p class="text-sm text-red-500 font-bold">${msg}</p>
+            <button onclick="location.reload()" class="mt-3 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700 transition">🔄 Refresh</button>
+        </div>
+    `;
 }
 
 function flipCard(id) { const el=document.getElementById(id); if(!el.classList.contains('flipped')) el.classList.add('flipped'); }

@@ -7,9 +7,11 @@ use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\VoucherController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DaftarHargaController;
+use App\Http\Controllers\TriviaController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminTransaksiController;
+use App\Http\Controllers\Admin\AdminForecastController;
 use Illuminate\Support\Facades\Route;
 
 // ==========================================
@@ -37,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/withdraw', [ProfileController::class, 'withdraw'])->name('withdraw');
+    Route::post('/trivia/generate', [TriviaController::class, 'generate'])->name('trivia.generate');
 });
 
 // ==========================================
@@ -55,5 +58,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/diterima', [AdminTransaksiController::class, 'diterima'])->name('diterima');
         Route::post('/selesaikan/{id}', [AdminTransaksiController::class, 'selesaikan'])->name('selesaikan');
         Route::get('/selesai', [AdminTransaksiController::class, 'selesai'])->name('selesai');
+        Route::post('/forecast', [AdminForecastController::class, 'generate'])->name('forecast');
     });
 });

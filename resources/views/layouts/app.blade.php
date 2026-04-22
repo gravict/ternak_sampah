@@ -7,6 +7,7 @@
     <title>@yield('title', 'TernakSampah | Dashboard Cerdas')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @yield('styles')
 </head>
 <body class="text-slate-800">
 

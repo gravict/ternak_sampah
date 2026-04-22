@@ -12,7 +12,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check() || !Auth::user()->isAdmin()) {
-            return redirect('/admin/login');
+            return redirect('/');
         }
 
         return $next($request);

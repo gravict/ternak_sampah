@@ -6,6 +6,7 @@
     <title>@yield('title', 'Admin Panel | TernakSampah')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @yield('styles')
 </head>
 <body class="text-slate-800" style="background-color: #f1f5f9;">
 
@@ -42,7 +43,7 @@
                 <a href="{{ route('admin.diterima') }}" class="nav-link py-5 border-b-[3px] font-semibold text-slate-500 transition hover:text-slate-900 {{ request()->routeIs('admin.diterima') ? 'nav-link-active' : 'border-transparent' }}">
                     Sedang Ditimbang <span class="bg-blue-500 text-white text-[10px] px-2 py-0.5 rounded-full ml-1">{{ $weighingCount }}</span>
                 </a>
-                <a href="{{ route('admin.selesai') }}" class="nav-link py-5 border-b-[3px] font-semibold text-slate-500 transition hover:text-slate-900 {{ request()->routeIs('admin.selesai') ? 'nav-link-active' : 'border-transparent' }}">Riwayat Selesai</a>
+                <a href="{{ route('admin.selesai') }}" class="nav-link py-5 border-b-[3px] font-semibold text-slate-500 transition hover:text-slate-900 {{ request()->routeIs('admin.selesai') ? 'nav-link-active' : 'border-transparent' }}">Riwayat</a>
             </div>
 
             <div class="flex items-center gap-4 ml-4 flex-shrink-0">

@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('title', 'Setor Sampah | TernakSampah')
 
+@section('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endsection
+
 @section('content')
 <div class="max-w-3xl mx-auto">
     <h2 class="text-3xl font-extrabold mb-6">Form Setor Sampah ♻️</h2>
@@ -49,7 +54,10 @@
             {{-- Category & Weight --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-2">Kategori Utama</label>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-bold text-slate-600">Kategori Utama</label>
+                        <a href="{{ route('daftar_harga') }}" target="_blank" class="text-xs font-bold text-green-600 hover:text-green-700 hover:underline transition">📋 Lihat Daftar Harga →</a>
+                    </div>
                     <select name="category" id="trans-cat" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-green-500" onchange="updateEstFee()">
                         <option value="Plastik / PET">Plastik / Botol PET</option>
                         <option value="Kardus / Kertas">Kardus / Kertas</option>
@@ -87,7 +95,15 @@
                 <p class="text-xs font-bold text-orange-700 mb-3">⚠️ Biaya Pick-up: Potongan 20% dari estimasi pendapatan</p>
                 <div class="space-y-3">
                     <input type="datetime-local" name="pickup_datetime" class="w-full p-3 border border-orange-200 rounded-xl outline-none bg-white text-sm">
-                    <textarea name="pickup_address" placeholder="Alamat lengkap penjemputan..." class="w-full p-3 border border-orange-200 rounded-xl h-20 outline-none bg-white text-sm"></textarea>
+                    
+                    {{-- Minimap --}}
+                    <div>
+                        <label class="text-xs font-bold text-orange-700 mb-1 block">📍 Lokasi Penjemputan (Geser pin untuk mengubah)</label>
+                        <div id="pickup-map" class="w-full h-48 rounded-xl border border-orange-200 overflow-hidden z-0"></div>
+                        <p id="pickup-map-status" class="text-[10px] text-orange-500 font-bold mt-1">Mendeteksi lokasi GPS...</p>
+                    </div>
+
+                    <textarea name="pickup_address" id="pickup_address_input" placeholder="Alamat lengkap penjemputan..." class="w-full p-3 border border-orange-200 rounded-xl h-20 outline-none bg-white text-sm"></textarea>
                 </div>
             </div>
 
@@ -121,6 +137,50 @@ function toggleMethod() {
     document.getElementById('pickup-area').style.display = m === 'Pick-up' ? 'block' : 'none';
     updateEstFee();
 }
+
+// === IMAGE COMPRESSION CONFIG ===
+const MAX_DIMENSION = 1280;  // max width or height in pixels
+const JPEG_QUALITY = 0.6;   // compression quality (0.0 - 1.0)
+
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(2) + ' MB';
+}
+
+/**
+ * Compress a canvas to a target max dimension and JPEG quality.
+ * Returns a Promise<Blob>.
+ */
+function compressCanvasImage(sourceCanvas, maxDim, quality) {
+    return new Promise((resolve) => {
+        let w = sourceCanvas.width;
+        let h = sourceCanvas.height;
+
+        // Calculate scaled dimensions
+        if (w > maxDim || h > maxDim) {
+            if (w > h) {
+                h = Math.round(h * (maxDim / w));
+                w = maxDim;
+            } else {
+                w = Math.round(w * (maxDim / h));
+                h = maxDim;
+            }
+        }
+
+        // Create a temporary canvas for the compressed version
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = w;
+        tempCanvas.height = h;
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(sourceCanvas, 0, 0, w, h);
+
+        tempCanvas.toBlob((blob) => {
+            resolve(blob);
+        }, 'image/jpeg', quality);
+    });
+}
+
 // Camera & Geolocation Integration
 const video = document.getElementById('camera_stream');
 const canvas = document.getElementById('camera_canvas');
@@ -193,14 +253,25 @@ snapBtn.addEventListener('click', () => {
         // Potong teks alamat jika terlalu panjang agar muat di layar
         const shortAddr = addressText.length > 110 ? addressText.substring(0, 110) + "..." : addressText;
         ctx.fillText("Lokasi: " + shortAddr, 15, canvas.height - 21);
-        
-        // 4. Ubah Data Canvas menjadi file JPEG, inject ke input file form
-        canvas.toBlob((blob) => {
-            const file = new File([blob], "sampah_capture_" + Date.now() + ".jpg", { type: "image/jpeg" });
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            photoInput.files = dt.files;
-        }, 'image/jpeg', 0.85);
+
+        // === AUTO COMPRESSION ===
+        // Calculate original size (uncompressed high-quality JPEG)
+        const origBlob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.95));
+        const originalSize = origBlob.size;
+
+        // Compress the image
+        statusText.innerText = "🗜️ Mengompres gambar...";
+        statusText.className = "text-xs font-bold mt-3 text-blue-500 border-l-4 border-blue-500 pl-3";
+
+        const compressedBlob = await compressCanvasImage(canvas, MAX_DIMENSION, JPEG_QUALITY);
+        const compressedSize = compressedBlob.size;
+        const savings = Math.round((1 - compressedSize / originalSize) * 100);
+
+        // Inject compressed file into the form input
+        const file = new File([compressedBlob], "sampah_capture_" + Date.now() + ".jpg", { type: "image/jpeg" });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        photoInput.files = dt.files;
         
         // Ganti tampilan video menjadi canvas agar user bisa melihat form watermarknya!
         video.classList.add('hidden');
@@ -209,7 +280,13 @@ snapBtn.addEventListener('click', () => {
         snapBtn.classList.add('hidden');
         retakeBtn.classList.remove('hidden');
         
-        statusText.innerText = `✅ Foto diproses. Geotech (Waktu & Lokasi) terukir di gambar!`;
+        statusText.innerHTML = `✅ Foto diproses & dikompres otomatis!<br>` +
+            `<span class="inline-flex items-center gap-2 mt-1">` +
+            `<span class="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Asli: ${formatFileSize(originalSize)}</span>` +
+            `<span>→</span>` +
+            `<span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Kompres: ${formatFileSize(compressedSize)}</span>` +
+            `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-bold">Hemat ${savings}%</span>` +
+            `</span>`;
         statusText.className = "text-xs font-bold mt-3 text-green-600 border-l-4 border-green-600 pl-3";
     };
 
@@ -238,5 +315,87 @@ retakeBtn.addEventListener('click', () => {
     statusText.innerText = "📍 Menunggu pengambilan foto ulang...";
     statusText.className = "text-xs font-bold mt-3 text-slate-500 border-l-4 border-slate-300 pl-3";
 });
+
+// === PICKUP MINIMAP (Leaflet + OpenStreetMap) ===
+let pickupMap = null;
+let pickupMarker = null;
+let mapInitialized = false;
+
+function initPickupMap() {
+    if (mapInitialized) {
+        pickupMap.invalidateSize();
+        return;
+    }
+    mapInitialized = true;
+
+    // Default: Jakarta Barat
+    const defaultLat = -6.1684;
+    const defaultLng = 106.7638;
+
+    pickupMap = L.map('pickup-map', { zoomControl: true }).setView([defaultLat, defaultLng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap',
+        maxZoom: 19,
+    }).addTo(pickupMap);
+
+    pickupMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(pickupMap);
+    pickupMarker.bindPopup('Geser pin ke lokasi penjemputan').openPopup();
+
+    // When marker is dragged, reverse-geocode new position
+    pickupMarker.on('dragend', function(e) {
+        const pos = e.target.getLatLng();
+        reverseGeocodePickup(pos.lat, pos.lng);
+    });
+
+    // Try to get user's GPS location
+    if (navigator.geolocation) {
+        document.getElementById('pickup-map-status').innerText = '📡 Mencari posisi GPS...';
+        navigator.geolocation.getCurrentPosition(
+            (p) => {
+                const lat = p.coords.latitude;
+                const lng = p.coords.longitude;
+                pickupMap.setView([lat, lng], 16);
+                pickupMarker.setLatLng([lat, lng]);
+                reverseGeocodePickup(lat, lng);
+            },
+            () => {
+                document.getElementById('pickup-map-status').innerText = '⚠️ GPS ditolak. Geser pin secara manual.';
+                reverseGeocodePickup(defaultLat, defaultLng);
+            },
+            { enableHighAccuracy: true }
+        );
+    } else {
+        document.getElementById('pickup-map-status').innerText = '⚠️ GPS tidak tersedia di perangkat ini.';
+        reverseGeocodePickup(defaultLat, defaultLng);
+    }
+}
+
+async function reverseGeocodePickup(lat, lng) {
+    const statusEl = document.getElementById('pickup-map-status');
+    statusEl.innerText = '🔍 Mencari alamat...';
+    try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        if (data && data.display_name) {
+            document.getElementById('pickup_address_input').value = data.display_name;
+            statusEl.innerText = '✅ Alamat ditemukan. Bisa diedit manual di bawah.';
+        } else {
+            statusEl.innerText = '⚠️ Alamat tidak ditemukan. Isi manual di bawah.';
+        }
+    } catch(e) {
+        statusEl.innerText = '⚠️ Gagal memuat alamat. Isi manual di bawah.';
+    }
+}
+
+// Override toggleMethod to also init map when Pick-up is selected
+const origToggleMethod = toggleMethod;
+window.toggleMethod = function() {
+    origToggleMethod();
+    const m = document.getElementById('trans-method').value;
+    if (m === 'Pick-up') {
+        setTimeout(() => initPickupMap(), 200);
+    }
+};
 </script>
 @endsection
+

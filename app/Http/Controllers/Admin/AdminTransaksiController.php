@@ -88,14 +88,21 @@ class AdminTransaksiController extends Controller
         );
     }
 
-    // Tahap 3: Riwayat Selesai
-    public function selesai()
+    // Tahap 3: Riwayat (Selesai + Ditolak)
+    public function selesai(Request $request)
     {
-        $transactions = Transaction::with('user')
+        $tab = $request->get('tab', 'complete');
+
+        $completeTransactions = Transaction::with('user')
             ->where('status', 'complete')
             ->orderBy('updated_at', 'desc')
             ->get();
 
-        return view('admin.selesai', compact('transactions'));
+        $rejectedTransactions = Transaction::with('user')
+            ->where('status', 'rejected')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('admin.selesai', compact('completeTransactions', 'rejectedTransactions', 'tab'));
     }
 }

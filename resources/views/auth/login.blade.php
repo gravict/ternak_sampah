@@ -31,10 +31,6 @@
 
             <p class="text-center mt-6 text-sm text-slate-500">
                 Belum punya akun? <a href="{{ route('register') }}" class="text-green-600 font-bold hover:underline">Daftar Sekarang</a>
-            </p>
-            <div class="text-center mt-3">
-                <a href="{{ route('admin.login') }}" class="text-xs text-slate-400 hover:text-slate-600">Login sebagai Admin →</a>
-            </div>
         </div>
     </div>
 </body>
