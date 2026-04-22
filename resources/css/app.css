@@ -59,7 +59,7 @@ body {
 /* Flip Card for Trivia */
 .flip-card {
     perspective: 1000px;
-    height: 260px;
+    height: 300px;
 }
 .flip-card-inner {
     position: relative;
@@ -80,11 +80,13 @@ body {
     backface-visibility: hidden;
     border-radius: 1.5rem;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 1rem;
     text-align: center;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    overflow: hidden;
 }
 .flip-card-front {
     background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
@@ -94,8 +96,8 @@ body {
     background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
     color: white;
     transform: rotateY(180deg);
-    flex-direction: column;
     cursor: default;
+    overflow-y: auto;
 }
 
 /* Modal */

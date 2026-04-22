@@ -14,7 +14,8 @@ class TriviaController extends Controller
         $request->validate([
             'headlines'               => 'required|array|min:1|max:10',
             'headlines.*.title'       => 'required|string|max:300',
-            'headlines.*.description' => 'nullable|string|max:1000',
+            'headlines.*.description' => 'nullable|string|max:2000',
+            'headlines.*.url'         => 'nullable|string|max:500',
         ]);
 
         $headlines = $request->input('headlines');
@@ -22,7 +23,14 @@ class TriviaController extends Controller
 
         $cached = Cache::get($cacheKey);
         if ($cached) {
-            return response()->json(['questions' => $cached, 'source' => 'cache']);
+            // Handle both old cache format (array of questions) and new format (array with 'questions' and 'sources')
+            $questions = isset($cached['questions']) ? $cached['questions'] : $cached;
+            $sources = isset($cached['sources']) ? $cached['sources'] : [];
+            return response()->json([
+                'questions' => $questions,
+                'sources'   => $sources,
+                'source'    => 'cache'
+            ]);
         }
 
         $apiKey = env('GROQ_API_KEY');
@@ -35,9 +43,9 @@ class TriviaController extends Controller
         }
 
         try {
-            $questions = $this->callGroqWithRetry($apiKey, $headlines);
-            Cache::put($cacheKey, $questions, now()->addHours(6));
-            return response()->json(['questions' => $questions, 'source' => 'groq']);
+            $result = $this->callGroqWithRetry($apiKey, $headlines);
+            Cache::put($cacheKey, $result, now()->addHours(6));
+            return response()->json(['questions' => $result['questions'], 'sources' => $result['sources'], 'source' => 'groq']);
         } catch (\Exception $e) {
             Log::warning('Groq API trivia generation failed: ' . $e->getMessage());
             return response()->json([
@@ -70,42 +78,93 @@ class TriviaController extends Controller
 
     private function callGroq(string $apiKey, array $headlines): array
     {
+        // Build article list with full content for AI
         $headlinesList = collect($headlines)->map(function ($h, $i) {
             $num   = $i + 1;
             $title = is_array($h) ? ($h['title'] ?? '') : $h;
             $desc  = is_array($h) ? ($h['description'] ?? '') : '';
-            $text  = "{$num}. {$title}";
+            $url   = is_array($h) ? ($h['url'] ?? '') : '';
+
+            // Attempt to scrape full article content
+            if (!empty($url)) {
+                try {
+                    $response = Http::timeout(8)
+                        ->withOptions(['allow_redirects' => true])
+                        ->withHeaders([
+                            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                        ])
+                        ->get($url);
+
+                    if ($response->successful()) {
+                        $html = $response->body();
+                        // Prevent warnings from malformed HTML
+                        libxml_use_internal_errors(true);
+                        $doc = new \DOMDocument();
+                        // Convert encoding to prevent weird characters
+                        @$doc->loadHTML('<?xml encoding="UTF-8">' . $html);
+                        $paragraphs = $doc->getElementsByTagName('p');
+                        
+                        $scrapedText = '';
+                        foreach ($paragraphs as $p) {
+                            $clean = trim($p->textContent);
+                            // Only include substantive paragraphs
+                            if (strlen($clean) > 60) {
+                                $scrapedText .= $clean . "\n\n";
+                            }
+                        }
+                        
+                        // If we successfully extracted text, use it instead of the short RSS description
+                        if (strlen($scrapedText) > 200) {
+                            // Limit to 4000 chars to avoid exceeding Groq prompt token limits
+                            $desc = substr($scrapedText, 0, 4000) . "..."; 
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // If scraping fails (timeout, blocked, etc.), it silently falls back to the RSS description
+                }
+            }
+
+            $text  = "BERITA {$num}: {$title}";
             if (!empty(trim($desc))) {
-                $text .= "\n   Ringkasan: " . trim($desc);
+                $text .= "\nISI BERITA: " . trim($desc);
             }
             return $text;
-        })->implode("\n\n");
+        })->implode("\n\n---\n\n");
+
+        // Collect source URLs for each article
+        $sourceUrls = collect($headlines)->map(function ($h) {
+            return is_array($h) ? ($h['url'] ?? '') : '';
+        })->toArray();
 
         $prompt = <<<PROMPT
-Kamu adalah AI pembuat kuis trivia lingkungan untuk aplikasi Bank Sampah Indonesia.
+Kamu adalah AI pembuat kuis trivia untuk aplikasi Bank Sampah Indonesia.
 
-Berikut adalah berita terbaru beserta ringkasannya:
+Berikut adalah BERITA UTAMA hari ini beserta ISI LENGKAPNYA:
+
 {$headlinesList}
 
-Tugasmu: Buat TEPAT 2 pertanyaan trivia pilihan ganda dalam Bahasa Indonesia.
+Tugasmu: Buat TEPAT 2 pertanyaan trivia pilihan ganda dalam Bahasa Indonesia berdasarkan berita di atas.
 
 ATURAN PENTING:
-1. Pertanyaan harus berkaitan dengan TEMA atau TOPIK dari berita di atas.
-2. JANGAN buat pertanyaan tentang angka/statistik/persentase spesifik kecuali angka tersebut DISEBUTKAN JELAS di ringkasan berita di atas.
-3. Fokus pada pertanyaan konseptual yang bisa dijawab dari pengetahuan umum tentang lingkungan.
-4. Setiap pertanyaan memiliki 4 opsi jawaban, tepat 1 benar, opsi salah harus masuk akal.
-5. Pertanyaan harus edukatif dan menarik untuk pengguna bank sampah.
+1. Kedua pertanyaan HARUS berdasarkan DETAIL SPESIFIK yang ada di dalam ISI BERITA di atas (misalnya: fakta, lokasi, nama program, angka, penyebab, dampak, atau solusi yang disebutkan).
+2. JANGAN buat pertanyaan pengetahuan umum yang bisa dijawab tanpa membaca beritanya.
+3. Tujuan: User HARUS membaca isi berita terlebih dahulu agar bisa menjawab pertanyaan dengan benar.
+4. Setiap pertanyaan memiliki 4 opsi jawaban, tepat 1 benar, opsi salah harus masuk akal dan mirip tapi salah.
+5. Pertanyaan harus edukatif dan menarik.
+6. Karena hanya ada 1 berita sumber, selalu isi "sourceIndex" dengan 0.
 
 WAJIB output HANYA JSON array berikut TANPA teks lain, tanpa markdown code block:
 [
   {
-    "question": "pertanyaan di sini?",
+    "question": "Menurut berita, ...?",
     "options": ["opsi A", "opsi B", "opsi C", "opsi D"],
-    "correctIndex": 0
+    "correctIndex": 0,
+    "sourceIndex": 0
   }
 ]
 
 correctIndex adalah indeks (0-3) dari jawaban yang benar di array options.
+sourceIndex adalah indeks (0-based) dari berita yang menjadi sumber pertanyaan.
 PROMPT;
 
         $response = Http::timeout(30)
@@ -155,10 +214,13 @@ PROMPT;
                 $q['correctIndex'] >= 0 &&
                 $q['correctIndex'] <= 3
             ) {
+                $sourceIdx = isset($q['sourceIndex']) && is_int($q['sourceIndex']) ? $q['sourceIndex'] : 0;
                 $validated[] = [
                     'question'     => $q['question'],
                     'options'      => $q['options'],
                     'correctIndex' => $q['correctIndex'],
+                    'sourceUrl'    => $sourceUrls[$sourceIdx] ?? '',
+                    'sourceTitle'  => is_array($headlines[$sourceIdx] ?? null) ? ($headlines[$sourceIdx]['title'] ?? '') : '',
                 ];
             }
         }
@@ -167,7 +229,10 @@ PROMPT;
             throw new \Exception('No valid questions parsed from Groq response');
         }
 
-        return array_slice($validated, 0, 2);
+        return [
+            'questions' => array_slice($validated, 0, 2),
+            'sources'   => $sourceUrls,
+        ];
     }
 
     private function fallbackTrivia(array $headlines): array

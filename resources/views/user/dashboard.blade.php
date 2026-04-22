@@ -166,18 +166,20 @@
             container.innerHTML = `
         <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
             <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p class="text-sm text-slate-500 font-bold">🤖 Groq AI sedang membuat trivia dari berita hari ini...</p>
-            <p class="text-xs text-slate-400 mt-1">Memproses ${Math.min(articles.length, 5)} judul berita terbaru...</p>
+            <p class="text-sm text-slate-500 font-bold">🤖 Groq AI sedang membuat trivia...</p>
+            <p class="text-xs text-slate-400 mt-1">Menganalisis isi Berita Utama hari ini untuk dijadikan pertanyaan...</p>
         </div>
     `;
 
-            const articles5 = articles.slice(0, 5);
-            const headlines = articles5.map(a => ({
-                title: a.title.split(' - ')[0],
-                description: a.description ?
-                    a.description.replace(/<[^>]*>/g, '').substring(0, 300) :
-                    ''
-            }));
+            // Only use the top main article for the trivia
+            const mainArticle = articles[0];
+            const headlines = [{
+                title: mainArticle.title.split(' - ')[0],
+                description: mainArticle.description ?
+                    mainArticle.description.replace(/<[^>]*>/g, '').substring(0, 1500) :
+                    '',
+                url: mainArticle.link || ''
+            }];
 
             try {
                 const res = await fetch('{{ route('trivia.generate') }}', {
@@ -220,18 +222,30 @@
                     optionsHTML +=
                         `<button onclick="answerTrivia(${idx+1}, this, ${isCorrect}, 15)" class="bg-white/20 hover:bg-white/40 text-white border border-white/50 py-2 rounded-xl text-xs font-bold transition shadow-sm">${labels[oi]}. ${opt}</button>`;
                 });
+
+                // Source article link
+                const sourceLink = q.sourceUrl ?
+                    `<a href="${q.sourceUrl}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition z-20 shrink-0">📰 Baca Berita Dulu</a>` :
+                    '';
+
+                const badgeRowHTML = (sourceLink || badgeHTML) ?
+                    `<div class="flex justify-between items-center w-full px-3 pt-3 gap-2">${sourceLink}<span class="flex-1"></span>${badgeHTML.replace('absolute top-3 right-3', '')}</div>` : '';
+
                 container.innerHTML += `
         <div class="flip-card" id="card-${idx+1}" onclick="flipCard('card-${idx+1}')">
             <div class="flip-card-inner">
-                <div class="flip-card-front">
-                    ${badgeHTML}
-                    <p class="font-bold text-slate-700 px-4">${q.question}</p>
-                    <span class="absolute bottom-4 text-xs text-indigo-600 font-bold bg-indigo-100 px-3 py-1 rounded-full">Tap untuk balik</span>
+                <div class="flip-card-front" style="justify-content: flex-start;">
+                    ${badgeRowHTML}
+                    <div class="flex-1 flex items-center justify-center px-4">
+                        <p class="font-bold text-slate-700 text-center">${q.question}</p>
+                    </div>
+                    <span class="mb-4 text-xs text-indigo-600 font-bold bg-indigo-100 px-3 py-1 rounded-full">Tap untuk balik</span>
                 </div>
                 <div class="flip-card-back" onclick="event.stopPropagation()">
                     <p class="font-bold text-sm mb-3">Pilih jawabanmu:</p>
                     <div class="flex flex-col gap-2 w-full px-2" id="options-${idx+1}">${optionsHTML}</div>
                     <p id="feedback-${idx+1}" class="hidden mt-3 text-xs font-bold bg-white text-green-700 py-1 px-3 rounded-full"></p>
+                    ${q.sourceUrl ? `<a href="${q.sourceUrl}" target="_blank" class="inline-block mt-2 text-[10px] text-blue-300 hover:text-white underline transition">📰 Baca berita sumber</a>` : ''}
                 </div>
             </div>
         </div>`;
