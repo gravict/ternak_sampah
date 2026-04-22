@@ -72,9 +72,13 @@ class DemoDataSeeder extends Seeder
 
         $createdUsers = [];
         foreach ($users as $userData) {
-            $createdUsers[] = User::create(array_merge($userData, [
-                'password' => Hash::make('password'),
-            ]));
+            $user = User::where('nik', $userData['nik'])->first();
+            if (!$user) {
+                $user = User::create(array_merge($userData, [
+                    'password' => Hash::make('password'),
+                ]));
+            }
+            $createdUsers[] = $user;
         }
 
         // Bank accounts
@@ -92,7 +96,7 @@ class DemoDataSeeder extends Seeder
         ];
 
         foreach ($bankAccounts as $ba) {
-            BankAccount::create($ba);
+            BankAccount::firstOrCreate(['user_id' => $ba['user_id'], 'bank' => $ba['bank']], $ba);
         }
 
         // =============================================

@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/withdraw', [ProfileController::class, 'withdraw'])->name('withdraw');
     Route::post('/trivia/generate', [TriviaController::class, 'generate'])->name('trivia.generate');
+    Route::post('/trivia/answer', [TriviaController::class, 'answer'])->name('trivia.answer');
 });
 
 // ==========================================

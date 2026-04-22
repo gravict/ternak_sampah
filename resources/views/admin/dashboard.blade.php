@@ -97,8 +97,7 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
             <div>
                 <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">🤖 AI Insight & Forecasting</h3>
-                <p class="text-slate-500 text-sm mt-1">Analisis otomatis dari data historis bank sampah menggunakan Gemini
-                    AI.</p>
+                <p class="text-slate-500 text-sm mt-1">Analisis otomatis dari data historis bank sampah.</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <button onclick="generateForecast('forecast')" id="btn-forecast"
@@ -268,8 +267,8 @@
                 const data = await res.json();
 
                 // ✅ Baru
-                const source = data.source === 'gemini' ? '🟢 Powered by Gemini AI' :
-                    data.source === 'groq' ? '🟣 Powered by Groq AI (Llama 3)' :
+                const source = data.source === 'gemini' ? '🟢 Powered by AI' :
+                    data.source === 'groq' ? '🟣 Powered by AI' :
                     data.source === 'cache' ? '📦 Dari Cache' :
                     '🔶 Mode Offline';
 

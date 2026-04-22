@@ -33,8 +33,9 @@
 
             <div class="flex gap-4 md:gap-8 text-sm h-full flex-nowrap whitespace-nowrap">
                 @php
-                    $pendingCount = \App\Models\Transaction::where('status', 'pending')->count();
-                    $weighingCount = \App\Models\Transaction::where('status', 'weighing')->count();
+                    $branch = Auth::user()->admin_branch;
+                    $pendingCount = \App\Models\Transaction::where('status', 'pending')->where('dropoff_location', $branch)->count();
+                    $weighingCount = \App\Models\Transaction::where('status', 'weighing')->where('dropoff_location', $branch)->count();
                 @endphp
                 <a href="{{ route('admin.dashboard') }}" class="nav-link py-5 border-b-[3px] font-semibold text-slate-500 transition hover:text-slate-900 {{ request()->routeIs('admin.dashboard') ? 'nav-link-active' : 'border-transparent' }}">Dashboard</a>
                 <a href="{{ route('admin.proses') }}" class="nav-link py-5 border-b-[3px] font-semibold text-slate-500 transition hover:text-slate-900 {{ request()->routeIs('admin.proses') ? 'nav-link-active' : 'border-transparent' }}">

@@ -6,9 +6,55 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class TriviaController extends Controller
 {
+    public function answer(Request $request)
+    {
+        $request->validate(['is_correct' => 'required|boolean']);
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $today = now()->toDateString();
+
+        if ($user->last_trivia_date === $today) {
+            return response()->json(['success' => false, 'message' => 'Kamu sudah menjawab semua trivia hari ini.']);
+        }
+
+        $cacheKey = 'trivia_ans_' . $user->id . '_' . $today;
+        $answeredCount = Cache::get($cacheKey, 0);
+
+        if ($answeredCount >= 2) {
+            return response()->json(['success' => false, 'message' => 'Kamu sudah menjawab maksimal 2 pertanyaan hari ini.']);
+        }
+
+        if ($request->is_correct) {
+            $user->points += 15;
+        }
+
+        $answeredCount++;
+        Cache::put($cacheKey, $answeredCount, now()->addDay());
+
+        // Update streak and last_trivia_date only after completing both questions
+        if ($answeredCount >= 2) {
+            $yesterday = now()->subDay()->toDateString();
+            if ($user->last_trivia_date === $yesterday) {
+                $user->streak += 1;
+            } elseif ($user->last_trivia_date !== $today) {
+                $user->streak = 1;
+            }
+            $user->last_trivia_date = $today;
+        }
+        
+        $user->save();
+
+        return response()->json([
+            'success'   => true,
+            'points'    => $user->points,
+            'streak'    => $user->streak,
+            'completed' => $answeredCount >= 2
+        ]);
+    }
     public function generate(Request $request)
     {
         $request->validate([

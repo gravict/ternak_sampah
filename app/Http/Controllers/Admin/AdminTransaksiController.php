@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\WastePrice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminTransaksiController extends Controller
 {
     // Tahap 1: Permintaan Baru (pending)
     public function proses()
     {
+        $branch = Auth::user()->admin_branch;
         $transactions = Transaction::with('user')
             ->where('status', 'pending')
+            ->where('dropoff_location', $branch)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -44,8 +47,10 @@ class AdminTransaksiController extends Controller
     // Tahap 2: Validasi & Timbang (weighing)
     public function diterima()
     {
+        $branch = Auth::user()->admin_branch;
         $transactions = Transaction::with('user')
             ->where('status', 'weighing')
+            ->where('dropoff_location', $branch)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -92,14 +97,17 @@ class AdminTransaksiController extends Controller
     public function selesai(Request $request)
     {
         $tab = $request->get('tab', 'complete');
+        $branch = Auth::user()->admin_branch;
 
         $completeTransactions = Transaction::with('user')
             ->where('status', 'complete')
+            ->where('dropoff_location', $branch)
             ->orderBy('updated_at', 'desc')
             ->get();
 
         $rejectedTransactions = Transaction::with('user')
             ->where('status', 'rejected')
+            ->where('dropoff_location', $branch)
             ->orderBy('updated_at', 'desc')
             ->get();
 

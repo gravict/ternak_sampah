@@ -81,12 +81,15 @@
                 </select>
             </div>
 
-            {{-- Drop-off Location --}}
-            <div id="dropoff-area" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
-                <label class="block text-sm font-bold text-slate-600">Pilih Lokasi Bank Sampah</label>
-                <select name="dropoff_location" class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white">
-                    <option>Bank Sampah Untar (Kampus 1, Jl. Letjen S. Parman)</option>
-                    <option>Bank Sampah Tomang (Jl. Tomang Raya No 10)</option>
+            {{-- Branch Location (For Drop-off & Pick-up) --}}
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <label class="block text-sm font-bold text-slate-600">Pilih Cabang Bank Sampah Tujuan</label>
+                <select name="dropoff_location" class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white" required>
+                    <option value="Bank Sampah Untar">Bank Sampah Untar (Kampus 1, Jl. Letjen S. Parman)</option>
+                    <option value="Bank Sampah Tomang">Bank Sampah Tomang (Jl. Tomang Raya No. 10)</option>
+                    <option value="Bank Sampah Grogol">Bank Sampah Grogol (Jl. Grogol Petamburan No. 88)</option>
+                    <option value="Bank Sampah Kebon Jeruk">Bank Sampah Kebon Jeruk (Jl. Kebon Jeruk Raya No. 5)</option>
+                    <option value="Bank Sampah Tanjung Duren">Bank Sampah Tanjung Duren (Jl. Tanjung Duren Barat No. 12)</option>
                 </select>
             </div>
 
@@ -99,7 +102,7 @@
                     {{-- Minimap --}}
                     <div>
                         <label class="text-xs font-bold text-orange-700 mb-1 block">📍 Lokasi Penjemputan (Geser pin untuk mengubah)</label>
-                        <div id="pickup-map" class="w-full h-48 rounded-xl border border-orange-200 overflow-hidden z-0"></div>
+                        <div id="pickup-map" class="w-full h-48 rounded-xl border border-slate-200 overflow-hidden z-0"></div>
                         <p id="pickup-map-status" class="text-[10px] text-orange-500 font-bold mt-1">Mendeteksi lokasi GPS...</p>
                     </div>
 
@@ -133,7 +136,6 @@ function updateEstFee() {
 }
 function toggleMethod() {
     const m = document.getElementById('trans-method').value;
-    document.getElementById('dropoff-area').style.display = m === 'Drop-off' ? 'block' : 'none';
     document.getElementById('pickup-area').style.display = m === 'Pick-up' ? 'block' : 'none';
     updateEstFee();
 }

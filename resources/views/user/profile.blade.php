@@ -26,8 +26,8 @@
             <div class="space-y-4 mb-6">
                 {{-- NIK (Always Read-only) --}}
                 <div>
-                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">NIK KTP (Permanen)</label>
-                    <input type="text" value="{{ $user->nik }}" disabled class="w-full text-center font-bold text-slate-400 bg-transparent py-2 border border-transparent outline-none cursor-not-allowed">
+                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">NIK KTP</label>
+                    <input type="text" value="{{ $user->nik }}" disabled class="w-full text-left font-bold text-slate-400 bg-transparent py-2 border border-transparent outline-none cursor-not-allowed">
                 </div>
 
                 {{-- Profile Photo Upload (hidden by default) --}}

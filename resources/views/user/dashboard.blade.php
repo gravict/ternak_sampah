@@ -148,7 +148,18 @@
                             year: 'numeric'
                         }) + ' · Sumber: Google News';
                     document.getElementById('dash-news-container').onclick = () => window.open(main.link, '_blank');
-                    generateAITrivia(articles);
+                    
+                    @php $hasPlayedToday = $user->last_trivia_date === now()->toDateString(); @endphp
+                    @if($hasPlayedToday)
+                        document.getElementById('trivia-container').innerHTML = `
+                        <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
+                            <p class="text-3xl mb-3">🎉</p>
+                            <p class="text-sm text-slate-500 font-bold">Kamu sudah menjawab trivia hari ini.</p>
+                            <p class="text-xs text-slate-400 mt-1">Kembali lagi besok untuk menjaga streakmu!</p>
+                        </div>`;
+                    @else
+                        generateAITrivia(articles);
+                    @endif
                 } else {
                     showTriviaError('Tidak ada berita ditemukan hari ini.');
                 }
@@ -223,13 +234,8 @@
                         `<button onclick="answerTrivia(${idx+1}, this, ${isCorrect}, 15)" class="bg-white/20 hover:bg-white/40 text-white border border-white/50 py-2 rounded-xl text-xs font-bold transition shadow-sm">${labels[oi]}. ${opt}</button>`;
                 });
 
-                // Source article link
-                const sourceLink = q.sourceUrl ?
-                    `<a href="${q.sourceUrl}" target="_blank" onclick="event.stopPropagation()" class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition z-20 shrink-0">📰 Baca Berita Dulu</a>` :
-                    '';
-
-                const badgeRowHTML = (sourceLink || badgeHTML) ?
-                    `<div class="flex justify-between items-center w-full px-3 pt-3 gap-2">${sourceLink}<span class="flex-1"></span>${badgeHTML.replace('absolute top-3 right-3', '')}</div>` : '';
+                const badgeRowHTML = badgeHTML ?
+                    `<div class="flex justify-end w-full px-3 pt-3">${badgeHTML.replace('absolute top-3 right-3', '')}</div>` : '';
 
                 container.innerHTML += `
         <div class="flip-card" id="card-${idx+1}" onclick="flipCard('card-${idx+1}')">
@@ -245,7 +251,6 @@
                     <p class="font-bold text-sm mb-3">Pilih jawabanmu:</p>
                     <div class="flex flex-col gap-2 w-full px-2" id="options-${idx+1}">${optionsHTML}</div>
                     <p id="feedback-${idx+1}" class="hidden mt-3 text-xs font-bold bg-white text-green-700 py-1 px-3 rounded-full"></p>
-                    ${q.sourceUrl ? `<a href="${q.sourceUrl}" target="_blank" class="inline-block mt-2 text-[10px] text-blue-300 hover:text-white underline transition">📰 Baca berita sumber</a>` : ''}
                 </div>
             </div>
         </div>`;
@@ -268,7 +273,7 @@
             if (!el.classList.contains('flipped')) el.classList.add('flipped');
         }
 
-        function answerTrivia(num, btn, isCorrect, pts) {
+        async function answerTrivia(num, btn, isCorrect, pts) {
             const fb = document.getElementById('feedback-' + num);
             if (fb.classList.contains('answered')) return;
             fb.classList.add('answered');
@@ -277,12 +282,47 @@
                 b.classList.add('opacity-50', 'cursor-not-allowed');
             });
             fb.classList.remove('hidden');
-            if (isCorrect) {
-                btn.classList.add('bg-white', 'text-green-700', 'opacity-100');
-                fb.innerText = 'Benar! 🎉 +' + pts + ' Poin';
-            } else {
-                btn.classList.add('bg-red-500', 'text-white', 'opacity-100');
-                fb.innerText = 'Sayang sekali, salah! 😢';
+            fb.innerText = 'Menyimpan jawaban...';
+
+            try {
+                const res = await fetch('{{ route('trivia.answer') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ is_correct: isCorrect }),
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    if (isCorrect) {
+                        btn.classList.add('bg-white', 'text-green-700', 'opacity-100');
+                        fb.innerText = 'Benar! 🎉 +' + pts + ' Poin';
+                    } else {
+                        btn.classList.add('bg-red-500', 'text-white', 'opacity-100');
+                        fb.innerText = 'Sayang sekali, salah! 😢';
+                    }
+                    
+                    if (data.completed) {
+                        // Jika sudah 2x jawab, hilangkan trivia card
+                        setTimeout(() => {
+                            const container = document.getElementById('trivia-container');
+                            container.innerHTML = `
+                                <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
+                                    <p class="text-3xl mb-3">🎉</p>
+                                    <p class="text-sm text-slate-500 font-bold">Kamu sudah menjawab semua trivia hari ini.</p>
+                                    <p class="text-xs text-slate-400 mt-1">Poin berhasil ditambahkan. Kembali lagi besok untuk menjaga streakmu!</p>
+                                    <button onclick="location.reload()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-green-500 transition shadow-sm">🔄 Refresh Poin di Header</button>
+                                </div>`;
+                        }, 1500);
+                    }
+                } else {
+                    fb.innerText = data.message || 'Gagal menyimpan jawaban.';
+                }
+            } catch (e) {
+                fb.innerText = 'Koneksi error, poin gagal disimpan.';
             }
         }
     </script>
