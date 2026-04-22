@@ -12,6 +12,12 @@ class DashboardController extends Controller
         // Tampung ke variabel $user dan berikan type hinting
         /** @var \App\Models\User $user */
         $user = Auth::user();
+
+        // Kalau admin nyasar ke sini, lempar ke admin dashboard
+        if ($user->isAdmin()) {
+            return redirect('/admin/dashboard');
+        }
+
         $co2Saved = $user->transactions()
             ->where('status', 'complete')
             ->sum('actual_weight') * 2.5; // rough CO2 factor

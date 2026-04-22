@@ -2,184 +2,225 @@
 @section('title', 'Dashboard | TernakSampah')
 
 @section('content')
-{{-- News Section --}}
-<div class="mb-10">
-    <div class="flex justify-between items-end mb-4">
-        <h2 class="text-2xl font-extrabold flex items-center gap-2">Update Hari Ini 📰</h2>
-        <span id="date-badge" class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200 shadow-sm">{{ now()->translatedFormat('d F Y') }}</span>
-    </div>
-    <div id="dash-news-container" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col justify-end min-h-[300px] p-6 group cursor-pointer">
-        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?q=80&w=1200')] bg-cover bg-center group-hover:scale-105 transition duration-700"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
-        <div class="relative z-10 text-white w-full lg:w-2/3">
-            <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-2 inline-block shadow-md">🌍 Live Google News</span>
-            <h3 id="dash-news-title" class="text-3xl font-extrabold mb-2 leading-tight">Memuat berita terkini...</h3>
-            <p id="dash-news-desc" class="text-sm text-slate-300 line-clamp-2">Sedang mengambil berita terbaru dari Google News...</p>
+    {{-- News Section --}}
+    <div class="mb-10">
+        <div class="flex justify-between items-end mb-4">
+            <h2 class="text-2xl font-extrabold flex items-center gap-2">Update Hari Ini 📰</h2>
+            <span id="date-badge"
+                class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200 shadow-sm">{{ now()->translatedFormat('d F Y') }}</span>
         </div>
-    </div>
-</div>
-
-{{-- User Stats Bar --}}
-<div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
-    <div>
-        <h1 class="text-xl font-extrabold mb-1">Dampak Positifmu, <span class="text-green-600">{{ $user->name }}</span>!</h1>
-        <div class="flex items-center gap-4 w-full md:w-96">
-            @php $level = intdiv($user->points, 150) + 1; $progress = ($user->points % 150) / 150 * 100; @endphp
-            <span class="text-sm font-bold text-slate-500 w-16">Level {{ $level }}</span>
-            <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden">
-                <div class="bg-gradient-to-r from-green-400 to-green-600 h-full transition-all duration-1000" style="width: {{ $progress }}%"></div>
+        <div id="dash-news-container"
+            class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col justify-end min-h-[300px] p-6 group cursor-pointer">
+            <div
+                class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?q=80&w=1200')] bg-cover bg-center group-hover:scale-105 transition duration-700">
             </div>
-            <span class="text-sm font-bold text-green-600 w-16 text-right">Level {{ $level + 1 }}</span>
-        </div>
-    </div>
-    <a href="{{ route('profile') }}#withdraw" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-900 transition flex items-center gap-2 shadow-lg text-sm">
-        💳 Tarik Saldo
-    </a>
-</div>
-
-{{-- Main Grid --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="lg:col-span-2 space-y-8">
-        {{-- Virtual Tree --}}
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
-            <div class="flex-1 text-center md:text-left relative z-10">
-                <h2 class="text-2xl font-extrabold mb-2">Pohon Virtualmu</h2>
-                <p class="text-slate-500 text-sm mb-4">Setiap kg sampah yang divalidasi admin akan menumbuhkan pohon ini. Terus setor untuk menyelamatkan bumi!</p>
-                <a href="{{ route('transaksi') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-xl shadow-lg transition-all text-sm">♻️ Setor Sampah</a>
-            </div>
-            <div class="w-40 h-40 bg-gradient-to-b from-green-50 to-emerald-100 rounded-full flex items-center justify-center border-4 border-white shadow-xl relative z-10">
-                @php
-                    $totalKg = $user->transactions()->where('status','complete')->sum('actual_weight');
-                    $tree = $totalKg >= 50 ? '🌳' : ($totalKg >= 20 ? '🌲' : ($totalKg >= 5 ? '🌿' : '🌱'));
-                @endphp
-                <div class="eco-tree text-7xl">{{ $tree }}</div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+            <div class="relative z-10 text-white w-full lg:w-2/3">
+                <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-2 inline-block shadow-md">🌍 Live
+                    Google News</span>
+                <h3 id="dash-news-title" class="text-3xl font-extrabold mb-2 leading-tight">Memuat berita terkini...</h3>
+                <p id="dash-news-desc" class="text-sm text-slate-300 line-clamp-2">Sedang mengambil berita terbaru dari
+                    Google News...</p>
             </div>
         </div>
+    </div>
 
-        {{-- AI Trivia --}}
+    {{-- User Stats Bar --}}
+    <div
+        class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-            <h3 class="text-xl font-extrabold mb-4 flex items-center gap-2">🤖 AI Daily Trivia <span class="text-sm font-normal text-slate-400">(Auto-generated dari berita hari ini)</span></h3>
-            <div id="trivia-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
-                    <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                    <p class="text-sm text-slate-500 font-bold">AI sedang menyusun trivia berdasarkan berita hari ini...</p>
+            <h1 class="text-xl font-extrabold mb-1">Dampak Positifmu, <span
+                    class="text-green-600">{{ $user->name }}</span>!</h1>
+            <div class="flex items-center gap-4 w-full md:w-96">
+                @php
+                    $level = intdiv($user->points, 150) + 1;
+                    $progress = (($user->points % 150) / 150) * 100;
+                @endphp
+                <span class="text-sm font-bold text-slate-500 w-16">Level {{ $level }}</span>
+                <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-full transition-all duration-1000"
+                        style="width: {{ $progress }}%"></div>
+                </div>
+                <span class="text-sm font-bold text-green-600 w-16 text-right">Level {{ $level + 1 }}</span>
+            </div>
+        </div>
+        <a href="{{ route('profile') }}#withdraw"
+            class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-900 transition flex items-center gap-2 shadow-lg text-sm">
+            💳 Tarik Saldo
+        </a>
+    </div>
+
+    {{-- Main Grid --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-8">
+            {{-- Virtual Tree --}}
+            <div
+                class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                <div class="flex-1 text-center md:text-left relative z-10">
+                    <h2 class="text-2xl font-extrabold mb-2">Pohon Virtualmu</h2>
+                    <p class="text-slate-500 text-sm mb-4">Setiap kg sampah yang divalidasi admin akan menumbuhkan pohon
+                        ini. Terus setor untuk menyelamatkan bumi!</p>
+                    <a href="{{ route('transaksi') }}"
+                        class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-xl shadow-lg transition-all text-sm">♻️
+                        Setor Sampah</a>
+                </div>
+                <div
+                    class="w-40 h-40 bg-gradient-to-b from-green-50 to-emerald-100 rounded-full flex items-center justify-center border-4 border-white shadow-xl relative z-10">
+                    @php
+                        $totalKg = $user->transactions()->where('status', 'complete')->sum('actual_weight');
+                        $tree = $totalKg >= 50 ? '🌳' : ($totalKg >= 20 ? '🌲' : ($totalKg >= 5 ? '🌿' : '🌱'));
+                    @endphp
+                    <div class="eco-tree text-7xl">{{ $tree }}</div>
+                </div>
+            </div>
+
+            {{-- AI Trivia --}}
+            <div>
+                <h3 class="text-xl font-extrabold mb-4 flex items-center gap-2">🤖 AI Daily Trivia <span
+                        class="text-sm font-normal text-slate-400">(Auto-generated dari berita hari ini)</span></h3>
+                <div id="trivia-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
+                        <div
+                            class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3">
+                        </div>
+                        <p class="text-sm text-slate-500 font-bold">AI sedang menyusun trivia berdasarkan berita hari ini...
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    {{-- Sidebar Stats --}}
-    <div class="space-y-4">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Saldo Tersedia</p>
-            <h3 class="text-3xl font-extrabold text-slate-800 mb-2">Rp {{ number_format($user->balance, 0, ',', '.') }}</h3>
-        </div>
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <p class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Total Poin</p>
-            <h3 class="text-4xl font-extrabold text-orange-500">{{ $user->points }} <span class="text-lg text-slate-400 font-semibold">Pts</span></h3>
-        </div>
-        <div class="bg-slate-800 p-6 rounded-2xl shadow-md text-white relative overflow-hidden">
-            <div class="absolute right-0 top-0 opacity-10 text-8xl -mr-4 -mt-4">💨</div>
-            <p class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Jejak Karbon Dihindari</p>
-            <h3 class="text-4xl font-extrabold text-emerald-400">{{ $co2Saved }} <span class="text-lg text-slate-400 font-semibold">Kg CO₂</span></h3>
-        </div>
-        <div class="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl shadow-sm border border-orange-100 relative overflow-hidden">
-            <div class="absolute right-0 top-0 opacity-20 text-7xl -mr-4 -mt-2">🔥</div>
-            <p class="text-sm text-orange-600 font-bold uppercase tracking-wider mb-1">Trivia Streak Aktif</p>
-            <div class="flex items-end gap-2 mb-2">
-                <h3 class="text-4xl font-extrabold text-orange-600">{{ $user->streak }}</h3>
-                <span class="text-lg text-orange-500 font-semibold mb-1">Hari</span>
+        {{-- Sidebar Stats --}}
+        <div class="space-y-4">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Saldo Tersedia</p>
+                <h3 class="text-3xl font-extrabold text-slate-800 mb-2">Rp {{ number_format($user->balance, 0, ',', '.') }}
+                </h3>
             </div>
-            <p class="text-xs text-orange-600 font-medium">Buka app tiap hari & jawab trivia untuk jaga streak!</p>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Total Poin</p>
+                <h3 class="text-4xl font-extrabold text-orange-500">{{ $user->points }} <span
+                        class="text-lg text-slate-400 font-semibold">Pts</span></h3>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-2xl shadow-md text-white relative overflow-hidden">
+                <div class="absolute right-0 top-0 opacity-10 text-8xl -mr-4 -mt-4">💨</div>
+                <p class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Jejak Karbon Dihindari</p>
+                <h3 class="text-4xl font-extrabold text-emerald-400">{{ $co2Saved }} <span
+                        class="text-lg text-slate-400 font-semibold">Kg CO₂</span></h3>
+            </div>
+            <div
+                class="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl shadow-sm border border-orange-100 relative overflow-hidden">
+                <div class="absolute right-0 top-0 opacity-20 text-7xl -mr-4 -mt-2">🔥</div>
+                <p class="text-sm text-orange-600 font-bold uppercase tracking-wider mb-1">Trivia Streak Aktif</p>
+                <div class="flex items-end gap-2 mb-2">
+                    <h3 class="text-4xl font-extrabold text-orange-600">{{ $user->streak }}</h3>
+                    <span class="text-lg text-orange-500 font-semibold mb-1">Hari</span>
+                </div>
+                <p class="text-xs text-orange-600 font-medium">Buka app tiap hari & jawab trivia untuk jaga streak!</p>
+            </div>
         </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
-<script>
-// === LIVE NEWS + AI TRIVIA ENGINE ===
-document.addEventListener('DOMContentLoaded', () => { fetchAndIntegrate(); });
+    <script>
+        // === LIVE NEWS + AI TRIVIA ENGINE ===
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchAndIntegrate();
+        });
 
-async function fetchAndIntegrate() {
-    try {
-        const rssUrl = encodeURIComponent('https://news.google.com/rss/search?q=sampah+lingkungan+indonesia&hl=id&gl=ID&ceid=ID:id');
-        const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + rssUrl);
-        const data = await res.json();
-        if (data.status === 'ok' && data.items && data.items.length > 0) {
-            const articles = data.items;
-            const main = articles[0];
-            const mainTitle = main.title.split(' - ')[0];
-            document.getElementById('dash-news-title').innerText = mainTitle;
-            document.getElementById('dash-news-desc').innerText = new Date(main.pubDate).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}) + ' · Sumber: Google News';
-            document.getElementById('dash-news-container').onclick = () => window.open(main.link, '_blank');
-            generateAITrivia(articles);
-        } else {
-            showTriviaError('Tidak ada berita ditemukan hari ini.');
+        async function fetchAndIntegrate() {
+            try {
+                const rssUrl = encodeURIComponent(
+                    'https://news.google.com/rss/search?q=sampah+lingkungan+indonesia&hl=id&gl=ID&ceid=ID:id');
+                const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + rssUrl);
+                const data = await res.json();
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    const articles = data.items;
+                    const main = articles[0];
+                    const mainTitle = main.title.split(' - ')[0];
+                    document.getElementById('dash-news-title').innerText = mainTitle;
+                    document.getElementById('dash-news-desc').innerText = new Date(main.pubDate).toLocaleDateString(
+                        'id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        }) + ' · Sumber: Google News';
+                    document.getElementById('dash-news-container').onclick = () => window.open(main.link, '_blank');
+                    generateAITrivia(articles);
+                } else {
+                    showTriviaError('Tidak ada berita ditemukan hari ini.');
+                }
+            } catch (e) {
+                document.getElementById('dash-news-title').innerText = 'Tidak dapat terhubung ke Google News';
+                document.getElementById('dash-news-desc').innerText = 'Cek koneksi internet dan refresh halaman.';
+                showTriviaError('Gagal memuat berita untuk trivia.');
+            }
         }
-    } catch (e) {
-        document.getElementById('dash-news-title').innerText = 'Tidak dapat terhubung ke Google News';
-        document.getElementById('dash-news-desc').innerText = 'Cek koneksi internet dan refresh halaman.';
-        showTriviaError('Gagal memuat berita untuk trivia.');
-    }
-}
 
-async function generateAITrivia(articles) {
-    const container = document.getElementById('trivia-container');
+        async function generateAITrivia(articles) {
+            const container = document.getElementById('trivia-container');
 
-    // Show loading state
-    container.innerHTML = `
+            // Show loading state
+            container.innerHTML = `
         <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
             <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p class="text-sm text-slate-500 font-bold">🤖 Gemini AI sedang membuat trivia dari berita hari ini...</p>
+            <p class="text-sm text-slate-500 font-bold">🤖 Groq AI sedang membuat trivia dari berita hari ini...</p>
             <p class="text-xs text-slate-400 mt-1">Memproses ${Math.min(articles.length, 5)} judul berita terbaru...</p>
         </div>
     `;
 
-    const headlines = articles.slice(0, 5).map(a => a.title.split(' - ')[0]);
+            const articles5 = articles.slice(0, 5);
+            const headlines = articles5.map(a => ({
+                title: a.title.split(' - ')[0],
+                description: a.description ?
+                    a.description.replace(/<[^>]*>/g, '').substring(0, 300) :
+                    ''
+            }));
 
-    try {
-        const res = await fetch('{{ route("trivia.generate") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({ headlines }),
-        });
+            try {
+                const res = await fetch('{{ route('trivia.generate') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ headlines }),
+                });
 
-        const data = await res.json();
+                const data = await res.json();
 
-        if (data.questions && data.questions.length > 0) {
-            renderTrivia(data.questions, data.source);
-        } else {
-            showTriviaError('AI tidak mengembalikan pertanyaan. Coba refresh.');
+                if (data.questions && data.questions.length > 0) {
+                    renderTrivia(data.questions, data.source);
+                } else {
+                    showTriviaError('AI tidak mengembalikan pertanyaan. Coba refresh.');
+                }
+            } catch (e) {
+                console.error('Trivia fetch error:', e);
+                showTriviaError('Gagal menghubungi server trivia. Coba refresh halaman.');
+            }
         }
-    } catch (e) {
-        console.error('Trivia fetch error:', e);
-        showTriviaError('Gagal menghubungi server trivia. Coba refresh halaman.');
-    }
-}
 
-function renderTrivia(triviaData, source) {
-    const container = document.getElementById('trivia-container');
-    container.innerHTML = '';
+        function renderTrivia(triviaData, source) {
+            const container = document.getElementById('trivia-container');
+            container.innerHTML = '';
 
-    // Source badge
-    const badgeHTML = source === 'gemini' 
-        ? `<span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-indigo-100 text-indigo-700 border-indigo-200">✨ Powered by Gemini AI</span>`
-        : '';
+            // Source badge
+            const badgeHTML = source === 'groq' ?
+                `<span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-purple-100 text-purple-700 border-purple-200">🟣 Powered by Groq AI</span>` :
+                '';
 
-    triviaData.forEach((q, idx) => {
-        const labels = ['A', 'B', 'C', 'D'];
-        let optionsHTML = '';
-        q.options.forEach((opt, oi) => {
-            const isCorrect = (oi === q.correctIndex);
-            optionsHTML += `<button onclick="answerTrivia(${idx+1}, this, ${isCorrect}, 15)" class="bg-white/20 hover:bg-white/40 text-white border border-white/50 py-2 rounded-xl text-xs font-bold transition shadow-sm">${labels[oi]}. ${opt}</button>`;
-        });
-        container.innerHTML += `
+            triviaData.forEach((q, idx) => {
+                const labels = ['A', 'B', 'C', 'D'];
+                let optionsHTML = '';
+                q.options.forEach((opt, oi) => {
+                    const isCorrect = (oi === q.correctIndex);
+                    optionsHTML +=
+                        `<button onclick="answerTrivia(${idx+1}, this, ${isCorrect}, 15)" class="bg-white/20 hover:bg-white/40 text-white border border-white/50 py-2 rounded-xl text-xs font-bold transition shadow-sm">${labels[oi]}. ${opt}</button>`;
+                });
+                container.innerHTML += `
         <div class="flip-card" id="card-${idx+1}" onclick="flipCard('card-${idx+1}')">
             <div class="flip-card-inner">
                 <div class="flip-card-front">
@@ -194,27 +235,41 @@ function renderTrivia(triviaData, source) {
                 </div>
             </div>
         </div>`;
-    });
-}
+            });
+        }
 
-function showTriviaError(msg) {
-    const container = document.getElementById('trivia-container');
-    container.innerHTML = `
+        function showTriviaError(msg) {
+            const container = document.getElementById('trivia-container');
+            container.innerHTML = `
         <div class="col-span-2 bg-white rounded-3xl border border-red-100 shadow-sm p-8 text-center">
             <p class="text-3xl mb-3">😢</p>
             <p class="text-sm text-red-500 font-bold">${msg}</p>
             <button onclick="location.reload()" class="mt-3 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-slate-700 transition">🔄 Refresh</button>
         </div>
     `;
-}
+        }
 
-function flipCard(id) { const el=document.getElementById(id); if(!el.classList.contains('flipped')) el.classList.add('flipped'); }
-function answerTrivia(num, btn, isCorrect, pts) {
-    const fb=document.getElementById('feedback-'+num); if(fb.classList.contains('answered')) return; fb.classList.add('answered');
-    document.querySelectorAll('#options-'+num+' button').forEach(b => { b.disabled=true; b.classList.add('opacity-50','cursor-not-allowed'); });
-    fb.classList.remove('hidden');
-    if(isCorrect) { btn.classList.add('bg-white','text-green-700','opacity-100'); fb.innerText='Benar! 🎉 +'+pts+' Poin'; }
-    else { btn.classList.add('bg-red-500','text-white','opacity-100'); fb.innerText='Sayang sekali, salah! 😢'; }
-}
-</script>
+        function flipCard(id) {
+            const el = document.getElementById(id);
+            if (!el.classList.contains('flipped')) el.classList.add('flipped');
+        }
+
+        function answerTrivia(num, btn, isCorrect, pts) {
+            const fb = document.getElementById('feedback-' + num);
+            if (fb.classList.contains('answered')) return;
+            fb.classList.add('answered');
+            document.querySelectorAll('#options-' + num + ' button').forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-50', 'cursor-not-allowed');
+            });
+            fb.classList.remove('hidden');
+            if (isCorrect) {
+                btn.classList.add('bg-white', 'text-green-700', 'opacity-100');
+                fb.innerText = 'Benar! 🎉 +' + pts + ' Poin';
+            } else {
+                btn.classList.add('bg-red-500', 'text-white', 'opacity-100');
+                fb.innerText = 'Sayang sekali, salah! 😢';
+            }
+        }
+    </script>
 @endsection

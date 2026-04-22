@@ -13,8 +13,15 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect('/dashboard');
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+
+            // Arahkan ke tempat yang benar sesuai role
+            return $user->isAdmin()
+                ? redirect('/admin/dashboard')
+                : redirect('/dashboard');
         }
+
         return view('auth.login');
     }
 

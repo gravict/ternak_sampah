@@ -5,137 +5,239 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AdminForecastController extends Controller
 {
-    private array $prompts = [
-        'forecast' => "Kamu adalah analis data Bank Sampah profesional. Berdasarkan data historis transaksi sampah berikut, buatlah PREDIKSI/FORECASTING untuk 1 bulan ke depan. Berikan prediksi volume sampah per kategori, estimasi pendapatan, dan tren yang diprediksi. Gunakan bahasa Indonesia yang jelas dan terstruktur dengan poin-poin. Data:\n\n",
-        'trend' => "Kamu adalah analis data Bank Sampah profesional. Berdasarkan data historis transaksi sampah berikut, buatlah ANALISIS TREN yang komprehensif. Identifikasi pola musiman, kategori yang tumbuh/menurun, perbandingan bulan ke bulan, dan insight menarik. Gunakan bahasa Indonesia yang jelas dan terstruktur. Data:\n\n",
-        'recommendation' => "Kamu adalah konsultan bisnis Bank Sampah profesional. Berdasarkan data historis transaksi sampah berikut, berikan REKOMENDASI BISNIS yang actionable. Saran bisa mencakup: kategori mana yang perlu difokuskan, waktu operasional optimal, strategi akuisisi nasabah, peluang kemitraan, dan rencana ekspansi. Gunakan bahasa Indonesia yang jelas. Data:\n\n",
-    ];
-
     public function generate(Request $request)
     {
-        $request->validate([
-            'type' => 'required|in:forecast,trend,recommendation',
-        ]);
+        $type = $request->input('type', 'forecast');
 
-        $type = $request->type;
-        $cacheKey = "forecast_{$type}_" . now()->format('Y-m-d');
+        // ── 1. Ambil data 12 bulan terakhir per kategori ──────────────────────
+        $categories = [
+            'Plastik'  => 'Plastik',
+            'Kertas'   => 'Kertas',
+            'Besi'     => 'Besi',
+            'Minyak'   => 'Minyak',
+            'Campuran' => 'Campuran',
+        ];
 
-        // Return cached if available
-        $cached = Cache::get($cacheKey);
-        if ($cached) {
-            return response()->json(['result' => $cached, 'source' => 'cache']);
-        }
+        $from = now()->subMonths(12)->startOfMonth();
+        $to   = now()->endOfDay();
 
-        // Gather historical data (1 year)
-        $from = now()->subYear()->startOfMonth();
-        $dataSummary = $this->buildDataSummary($from);
-
-        $apiKey = config('services.gemini.api_key');
-        if (!$apiKey || $apiKey === 'your_key_here') {
-            return response()->json([
-                'result' => $this->fallbackResult($type),
-                'source' => 'fallback',
-            ]);
-        }
-
-        try {
-            $result = $this->callGemini($apiKey, $type, $dataSummary);
-            Cache::put($cacheKey, $result, now()->addHours(12));
-            return response()->json(['result' => $result, 'source' => 'gemini']);
-        } catch (\Exception $e) {
-            Log::warning("Gemini forecast failed: " . $e->getMessage());
-            return response()->json([
-                'result' => $this->fallbackResult($type),
-                'source' => 'fallback',
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    private function buildDataSummary(\Carbon\Carbon $from): string
-    {
-        // Monthly summary
-        $monthly = Transaction::where('status', 'complete')
-            ->where('updated_at', '>=', $from)
-            ->select(
-                DB::raw("strftime('%Y-%m', updated_at) as month"),
-                'category',
-                DB::raw("SUM(actual_weight) as total_kg"),
-                DB::raw("SUM(total_price) as total_rp"),
-                DB::raw("COUNT(*) as jumlah_transaksi")
-            )
-            ->groupBy('month', 'category')
-            ->orderBy('month')
-            ->get();
-
-        if ($monthly->isEmpty()) {
-            return "Belum ada data transaksi yang tercatat.";
-        }
-
-        $lines = ["Data Transaksi Bank Sampah (periode {$from->format('M Y')} - " . now()->format('M Y') . "):\n"];
-
-        $grouped = $monthly->groupBy('month');
-        foreach ($grouped as $month => $rows) {
-            $totalKg = $rows->sum('total_kg');
-            $totalRp = $rows->sum('total_rp');
-            $totalTrx = $rows->sum('jumlah_transaksi');
-            $lines[] = "Bulan {$month}: {$totalTrx} transaksi, {$totalKg} kg, Rp " . number_format($totalRp, 0, ',', '.');
-
-            foreach ($rows as $r) {
-                $lines[] = "  - {$r->category}: {$r->total_kg} kg ({$r->jumlah_transaksi} transaksi)";
-            }
-        }
-
-        return implode("\n", $lines);
-    }
-
-    private function callGemini(string $apiKey, string $type, string $data): string
-    {
-        $prompt = ($this->prompts[$type] ?? $this->prompts['forecast']) . $data;
-
-        $response = Http::timeout(30)->post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}",
-            [
-                'contents' => [
-                    ['parts' => [['text' => $prompt]]]
-                ],
-                'generationConfig' => [
-                    'temperature' => 0.7,
-                    'maxOutputTokens' => 2048,
-                ],
-            ]
+        // Buat daftar bulan 12 bulan terakhir
+        $monthList = collect(range(11, 0))->map(
+            fn($i) =>
+            now()->subMonths($i)->format('Y-m')
         );
 
-        if ($response->status() === 429) {
-            throw new \Exception('API rate limit (429). Coba lagi nanti.');
+        // Ambil data per kategori per bulan
+        $historicalData = [];
+        foreach ($monthList as $month) {
+            $row = ['bulan' => $month];
+            foreach ($categories as $label => $keyword) {
+                $row[$label] = (float) Transaction::where('status', 'complete')
+                    ->where('category', 'like', "%{$keyword}%")
+                    ->whereRaw("DATE_FORMAT(updated_at, '%Y-%m') = ?", [$month])
+                    ->sum('actual_weight');
+            }
+            $historicalData[] = $row;
         }
 
-        if (!$response->successful()) {
-            throw new \Exception('Gemini API error: ' . $response->status());
+        // ── 2. Ringkasan total per kategori (12 bulan) ────────────────────────
+        $summary = [];
+        foreach ($categories as $label => $keyword) {
+            $summary[$label] = (float) Transaction::where('status', 'complete')
+                ->where('category', 'like', "%{$keyword}%")
+                ->whereBetween('updated_at', [$from, $to])
+                ->sum('actual_weight');
         }
 
-        $text = $response->json('candidates.0.content.parts.0.text');
-        if (!$text) {
-            throw new \Exception('Empty response from Gemini API');
+        $totalAll = array_sum($summary);
+
+        // Hitung persentase kontribusi tiap kategori dari data nyata
+        $percentage = [];
+        foreach ($summary as $label => $val) {
+            $percentage[$label] = $totalAll > 0 ? round(($val / $totalAll) * 100, 1) : 0;
         }
 
-        return $text;
-    }
+        // ── 3. Rata-rata per bulan & tren (3 bulan terakhir vs 3 bulan sebelumnya)
+        $trend = [];
+        foreach ($categories as $label => $keyword) {
+            $recent = (float) Transaction::where('status', 'complete')
+                ->where('category', 'like', "%{$keyword}%")
+                ->whereBetween('updated_at', [now()->subMonths(3)->startOfMonth(), $to])
+                ->sum('actual_weight');
 
-    private function fallbackResult(string $type): string
-    {
-        return match($type) {
-            'forecast' => "📊 **Forecasting (Mode Offline)**\n\nSaat ini fitur AI sedang tidak tersedia. Berdasarkan data umum Bank Sampah:\n\n• Volume sampah plastik PET cenderung meningkat 5-10% per bulan di area urban\n• Musim hujan biasanya menurunkan volume setoran 15-20%\n• Kategori kardus/kertas stabil dengan fluktuasi rendah\n• Minyak jelantah meningkat pesat seiring kesadaran masyarakat\n\n*Aktifkan Gemini API untuk analisis yang dipersonalisasi dari data Anda.*",
-            'trend' => "📋 **Analisis Tren (Mode Offline)**\n\nSaat ini fitur AI sedang tidak tersedia. Berikut pola umum:\n\n• Tren nasional: Partisipasi Bank Sampah naik 12% YoY\n• Plastik PET mendominasi 45-55% volume di mayoritas Bank Sampah\n• Harga besi/logam berfluktuasi mengikuti harga komoditas global\n• Peak setoran biasanya di awal bulan (setelah payday)\n\n*Aktifkan Gemini API untuk analisis dari data aktual Anda.*",
-            'recommendation' => "💡 **Rekomendasi Bisnis (Mode Offline)**\n\nSaat ini fitur AI sedang tidak tersedia. Saran umum:\n\n• Fokuskan program edukasi pada kategori bernilai tinggi (besi, minyak jelantah)\n• Terapkan insentif streak untuk meningkatkan retensi nasabah\n• Jalin kemitraan dengan UMKM sekitar untuk pengolahan kardus\n• Pertimbangkan layanan Pick-up terjadwal mingguan\n\n*Aktifkan Gemini API untuk rekomendasi berdasarkan data Anda.*",
-            default => "Fitur AI sedang tidak tersedia.",
-        };
+            $previous = (float) Transaction::where('status', 'complete')
+                ->where('category', 'like', "%{$keyword}%")
+                ->whereBetween('updated_at', [
+                    now()->subMonths(6)->startOfMonth(),
+                    now()->subMonths(3)->endOfMonth(),
+                ])
+                ->sum('actual_weight');
+
+            $trend[$label] = [
+                'recent'   => $recent,
+                'previous' => $previous,
+                'delta'    => $previous > 0 ? round((($recent - $previous) / $previous) * 100, 1) : 0,
+            ];
+        }
+
+        // ── 4. Susun prompt sesuai type ───────────────────────────────────────
+        $dataJson    = json_encode($historicalData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $summaryJson = json_encode($summary, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $trendJson   = json_encode($trend, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $pctJson     = json_encode($percentage, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $nextMonth   = now()->addMonth()->translatedFormat('F Y');
+
+        $prompts = [
+
+            // ── FORECASTING ────────────────────────────────────────────────────
+            'forecast' => "
+Kamu adalah analis data bank sampah yang sangat berpengalaman.
+
+Berikut data historis sampah yang berhasil dikumpulkan (status: complete) per bulan dalam 12 bulan terakhir (satuan: Kg):
+
+DATA HISTORIS PER BULAN:
+{$dataJson}
+
+TOTAL 12 BULAN TERAKHIR PER KATEGORI (Kg):
+{$summaryJson}
+
+PERSENTASE KONTRIBUSI BERDASARKAN DATA NYATA (%):
+{$pctJson}
+
+TREN (3 BULAN TERAKHIR VS 3 BULAN SEBELUMNYA):
+{$trendJson}
+(delta positif = naik, negatif = turun)
+
+Tugasmu: Buat prediksi untuk bulan {$nextMonth}.
+
+Jawab dengan format PERSIS seperti ini:
+
+**🏆 Prediksi Kategori Terbanyak Bulan {$nextMonth}:** [nama kategori]
+
+**📊 Probabilitas Dominasi per Kategori:**
+• Plastik/PET: XX%
+• Kertas/Kardus: XX%
+• Besi/Logam: XX%
+• Minyak Jelantah: XX%
+• Campuran/Residu: XX%
+(total harus 100%)
+
+**📦 Estimasi Volume Bulan {$nextMonth}:**
+• Plastik/PET: ~XXX Kg
+• Kertas/Kardus: ~XXX Kg
+• Besi/Logam: ~XXX Kg
+• Minyak Jelantah: ~XXX Kg
+• Campuran/Residu: ~XXX Kg
+
+**💡 Alasan & Pola yang Ditemukan:**
+[Jelaskan pola tren, musiman, atau anomali dari data historis yang mendukung prediksi ini. Minimal 3 poin konkret.]
+",
+
+            // ── ANALISIS TREN ──────────────────────────────────────────────────
+            'trend' => "
+Kamu adalah analis tren bank sampah yang berpengalaman.
+
+Data historis 12 bulan terakhir (Kg per bulan):
+{$dataJson}
+
+Tren 3 bulan terakhir vs 3 bulan sebelumnya:
+{$trendJson}
+
+Lakukan analisis tren dengan format berikut:
+
+**📈 Status Tren per Kategori:**
+• Plastik/PET: [Naik/Turun/Stabil] — [penjelasan singkat]
+• Kertas/Kardus: [Naik/Turun/Stabil] — [penjelasan singkat]
+• Besi/Logam: [Naik/Turun/Stabil] — [penjelasan singkat]
+• Minyak Jelantah: [Naik/Turun/Stabil] — [penjelasan singkat]
+• Campuran/Residu: [Naik/Turun/Stabil] — [penjelasan singkat]
+
+**📅 Pola Musiman yang Terdeteksi:**
+[Jelaskan jika ada pola berulang di bulan-bulan tertentu]
+
+**🏅 Kategori Paling Konsisten:**
+[Kategori mana yang paling stabil volume-nya dan mengapa]
+
+**⚠️ Kategori yang Perlu Perhatian:**
+[Kategori mana yang trennya mengkhawatirkan dan kenapa]
+",
+
+            // ── REKOMENDASI BISNIS ─────────────────────────────────────────────
+            'recommendation' => "
+Kamu adalah konsultan bisnis bank sampah yang ahli.
+
+Data historis 12 bulan terakhir (Kg per bulan):
+{$dataJson}
+
+Total & persentase kontribusi per kategori:
+{$summaryJson}
+{$pctJson}
+
+Tren terkini (delta = perubahan % vs periode sebelumnya):
+{$trendJson}
+
+Berikan rekomendasi bisnis actionable dengan format:
+
+**🎯 Prioritas Utama (Quick Win):**
+[Kategori dan aksi yang paling cepat memberikan dampak volume]
+
+**📣 Strategi Pemasaran ke Nasabah:**
+• [Rekomendasi 1]
+• [Rekomendasi 2]
+• [Rekomendasi 3]
+
+**💰 Rekomendasi Insentif/Harga:**
+[Saran penyesuaian harga atau bonus per kategori untuk mendorong setoran lebih banyak]
+
+**🚀 Kategori yang Harus Di-boost:**
+[Kategori underperform yang memiliki potensi naik dan strategi konkretnya]
+
+**📌 Kesimpulan Eksekutif:**
+[Rangkuman 2-3 kalimat untuk pengambil keputusan]
+",
+        ];
+
+        $prompt = $prompts[$type] ?? $prompts['forecast'];
+
+        // ── 5. Panggil Gemini API ──────────────────────────────────────────────
+        try {
+            $apiKey = env('GROQ_API_KEY');
+
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'Content-Type'  => 'application/json',
+                    'Authorization' => 'Bearer ' . $apiKey,
+                ])
+                ->post('https://api.groq.com/openai/v1/chat/completions', [
+                    'model'       => 'llama-3.3-70b-versatile',
+                    'messages'    => [
+                        ['role' => 'user', 'content' => $prompt]
+                    ],
+                    'temperature' => 0.6,
+                    'max_tokens'  => 1500,
+                ]);
+
+            $result = $response->json();
+            $text   = $result['choices'][0]['message']['content']
+                ?? 'Groq tidak mengembalikan hasil.';
+
+            return response()->json([
+                'result' => $text,
+                'source' => 'groq',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('[AdminForecastController] ' . $e->getMessage());
+
+            return response()->json([
+                'result' => '⚠️ Error: ' . $e->getMessage(),
+                'source' => 'error',
+            ], 500);
+        }
     }
 }
