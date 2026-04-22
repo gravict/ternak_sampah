@@ -94,19 +94,19 @@
             </div>
 
             {{-- Pick-up Details --}}
-            <div id="pickup-area" class="bg-orange-50 p-4 rounded-xl border border-orange-200 hidden">
-                <p class="text-xs font-bold text-orange-700 mb-3">⚠️ Biaya Pick-up: Potongan 20% dari estimasi pendapatan</p>
+            <div id="pickup-area" class="bg-slate-50 p-4 rounded-xl border border-slate-200 hidden">
+                <p class="text-xs font-bold text-red-500 mb-3">⚠️ Biaya Pick-up: Potongan 20% dari estimasi pendapatan</p>
                 <div class="space-y-3">
-                    <input type="datetime-local" name="pickup_datetime" class="w-full p-3 border border-orange-200 rounded-xl outline-none bg-white text-sm">
+                    <input type="datetime-local" name="pickup_datetime" class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white text-sm">
                     
                     {{-- Minimap --}}
                     <div>
-                        <label class="text-xs font-bold text-orange-700 mb-1 block">📍 Lokasi Penjemputan (Geser pin untuk mengubah)</label>
+                        <label class="text-xs font-bold text-slate-600 mb-1 block">📍 Lokasi Penjemputan (Geser pin untuk mengubah)</label>
                         <div id="pickup-map" class="w-full h-48 rounded-xl border border-slate-200 overflow-hidden z-0"></div>
-                        <p id="pickup-map-status" class="text-[10px] text-orange-500 font-bold mt-1">Mendeteksi lokasi GPS...</p>
+                        <p id="pickup-map-status" class="text-[10px] text-slate-500 font-bold mt-1">Mendeteksi lokasi GPS...</p>
                     </div>
 
-                    <textarea name="pickup_address" id="pickup_address_input" placeholder="Alamat lengkap penjemputan..." class="w-full p-3 border border-orange-200 rounded-xl h-20 outline-none bg-white text-sm"></textarea>
+                    <textarea name="pickup_address" id="pickup_address_input" placeholder="Alamat lengkap penjemputan..." class="w-full p-3 border border-slate-200 rounded-xl h-20 outline-none bg-white text-sm"></textarea>
                 </div>
             </div>
 
