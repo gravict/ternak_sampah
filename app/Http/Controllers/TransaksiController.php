@@ -37,13 +37,17 @@ class TransaksiController extends Controller
             $photoPath = $this->storeCompressedPhoto($request->file('photo'));
         }
 
+        // Beritahu VS Code bahwa ini adalah Model User
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // Calculate points based on category
         $ptsMultiplier = str_contains($request->category, 'Plastik') ? 10 : 2;
         $earnedPoints = (int) floor($request->est_weight * $ptsMultiplier);
+        
+        // Garis merah di bawah 'increment' akan hilang!
         $user->increment('points', $earnedPoints);
-
+        
         Transaction::create([
             'user_id' => $user->id,
             'category' => $request->category,

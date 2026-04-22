@@ -32,10 +32,15 @@ class AuthController extends Controller
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $request->session()->regenerate();
-            // Auto-redirect admin to admin dashboard
-            if (Auth::user()->isAdmin()) {
+
+            // Tampung ke variabel $user dan berikan type hinting
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+
+            if ($user->isAdmin()) {
                 return redirect('/admin/dashboard');
             }
+
             return redirect('/dashboard');
         }
 

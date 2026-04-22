@@ -9,9 +9,14 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
-        if (!Auth::check() || !Auth::user()->isAdmin()) {
+        // Tampung user dan beri tahu Intelephense (bisa bernilai null jika belum login)
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        // Cek apakah user kosong (belum login) ATAU bukan admin
+        if (!$user || !$user->isAdmin()) {
             return redirect('/');
         }
 

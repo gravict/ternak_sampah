@@ -10,7 +10,10 @@ class AdminAuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check() && Auth::user()->isAdmin()) {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        if (Auth::check() && $user->isAdmin()) {
             return redirect('/admin/dashboard');
         }
         return view('admin.login');
@@ -23,8 +26,10 @@ class AdminAuthController extends Controller
             'password' => 'required',
         ]);
 
+        
         // Try admin login with a fixed admin username
         if (Auth::attempt(['username' => 'admin', 'password' => $request->password])) {
+            /** @var \App\Models\User $user */
             $user = Auth::user();
             if ($user->isAdmin()) {
                 $user->update(['admin_branch' => $request->branch]);

@@ -9,6 +9,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Tampung ke variabel $user dan berikan type hinting
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $co2Saved = $user->transactions()
             ->where('status', 'complete')

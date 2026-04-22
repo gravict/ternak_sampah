@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "853089b4453e2bb48d2d8d2edc506fb8",
+    "content-hash": "d8383aab96cbae16d1ccc062daf52bcd",
     "packages": [
         {
             "name": "brick/math",
@@ -1107,19 +1107,20 @@
         },
         {
             "name": "intervention/image",
-            "version": "3.0.0",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "4c1938f0d35e59bf90ba9fef04f375c503516bfd"
+                "reference": "3f96a8f752f4db17cde0a152891bc332ea9aa28d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/4c1938f0d35e59bf90ba9fef04f375c503516bfd",
-                "reference": "4c1938f0d35e59bf90ba9fef04f375c503516bfd",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/3f96a8f752f4db17cde0a152891bc332ea9aa28d",
+                "reference": "3f96a8f752f4db17cde0a152891bc332ea9aa28d",
                 "shasum": ""
             },
             "require": {
+                "ext-mbstring": "*",
                 "intervention/gif": "^3",
                 "php": "^8.1"
             },
@@ -1157,7 +1158,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Intervention/image/issues",
-                "source": "https://github.com/Intervention/image/tree/3.0.0"
+                "source": "https://github.com/Intervention/image/tree/3.2.1"
             },
             "funding": [
                 {
@@ -1169,7 +1170,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-12-08T13:57:00+00:00"
+            "time": "2023-12-30T20:10:28+00:00"
         },
         {
             "name": "laravel/framework",
@@ -8513,5 +8514,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

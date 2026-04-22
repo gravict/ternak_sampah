@@ -10,6 +10,8 @@ class ProfileController extends Controller
 {
     public function index()
     {
+        // Tampung ke variabel $user dan berikan type hinting
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $user->load('bankAccounts');
         return view('user.profile', compact('user'));
@@ -17,6 +19,8 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
+        // Tampung ke variabel $user dan berikan type hinting
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $request->validate([
@@ -56,6 +60,8 @@ class ProfileController extends Controller
             'bank_account_id' => 'required|exists:bank_accounts,id',
         ]);
 
+        // Tampung ke variabel $user dan berikan type hinting
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($request->amount > $user->balance) {
