@@ -48,10 +48,10 @@
 
 {{-- Charts Row --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-    {{-- Bar Chart --}}
+    {{-- Line Chart --}}
     <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <h3 class="text-lg font-extrabold text-slate-800 mb-4">📊 Sampah Masuk per Bulan (Kg)</h3>
-        <canvas id="barChart" class="w-full" style="max-height: 320px;"></canvas>
+        <h3 class="text-lg font-extrabold text-slate-800 mb-4">📈 Sampah Masuk per Bulan (Kg)</h3>
+        <canvas id="lineChart" class="w-full" style="max-height: 320px;"></canvas>
     </div>
     {{-- Pie Chart --}}
     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
@@ -127,32 +127,37 @@
 <script>
 const chartData = @json($chartData);
 
-// === Bar Chart (Stacked by category) ===
+// === Line Chart (By category) ===
 const catColors = {
-    'Plastik': 'rgba(59, 130, 246, 0.8)',
-    'Kertas': 'rgba(234, 179, 8, 0.8)',
-    'Besi': 'rgba(30, 41, 59, 0.8)',
-    'Minyak': 'rgba(180, 83, 9, 0.8)',
-    'Campuran': 'rgba(249, 115, 22, 0.8)',
+    'Plastik': 'rgba(59, 130, 246, 1)',
+    'Kertas': 'rgba(234, 179, 8, 1)',
+    'Besi': 'rgba(30, 41, 59, 1)',
+    'Minyak': 'rgba(180, 83, 9, 1)',
+    'Campuran': 'rgba(249, 115, 22, 1)',
 };
 
-const barDatasets = Object.keys(chartData.categories).map(cat => ({
+const lineDatasets = Object.keys(chartData.categories).map(cat => ({
     label: cat,
     data: chartData.categories[cat],
-    backgroundColor: catColors[cat] || 'rgba(100,100,100,0.5)',
-    borderRadius: 4,
+    borderColor: catColors[cat] || 'rgba(100,100,100,1)',
+    backgroundColor: catColors[cat] || 'rgba(100,100,100,1)',
+    borderWidth: 2,
+    tension: 0.3,
+    pointRadius: 3,
+    pointBackgroundColor: '#fff',
+    fill: false,
 }));
 
-new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: { labels: chartData.labels, datasets: barDatasets },
+new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: { labels: chartData.labels, datasets: lineDatasets },
     options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: { legend: { position: 'bottom', labels: { font: { size: 11, weight: 'bold' }, padding: 12 } } },
         scales: {
-            x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
-            y: { stacked: true, beginAtZero: true, ticks: { font: { size: 11 }, callback: v => v + ' kg' } },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { beginAtZero: true, ticks: { font: { size: 11 }, callback: v => v + ' kg' } },
         },
     },
 });
