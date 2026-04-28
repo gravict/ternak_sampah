@@ -136,8 +136,8 @@ class DemoDataSeeder extends Seeder
                 $pricePerKg = $priceMap[$category] ?? 1000;
                 $totalPrice = (int) ($actualWeight * $pricePerKg);
 
-                // Distribute evenly between 7 and 365 days ago
-                $daysAgo = rand(7, 365);
+                // Distribute evenly between 1 and 365 days ago
+                $daysAgo = rand(1, 365);
                 $createdAt = now()->subDays($daysAgo)->addHours(rand(8, 17));
                 $updatedAt = (clone $createdAt)->addDays(rand(1, 3));
 
