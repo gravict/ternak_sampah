@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminTransaksiController extends Controller
 {
-    // Tahap 1: Permintaan Baru (pending)
     public function proses()
     {
         $branch = Auth::user()->admin_branch;
@@ -44,7 +43,6 @@ class AdminTransaksiController extends Controller
         return back()->with('success', "Transaksi #{$id} ditolak.");
     }
 
-    // Tahap 2: Validasi & Timbang (weighing)
     public function diterima()
     {
         $branch = Auth::user()->admin_branch;
@@ -73,7 +71,6 @@ class AdminTransaksiController extends Controller
             $transferProofPath = $request->file('transfer_proof')->store('transfer_proofs', 'public');
         }
 
-        // Lookup price
         $priceMap = [
             'Plastik / PET' => 3000,
             'Kardus / Kertas' => 2500,
@@ -108,10 +105,8 @@ class AdminTransaksiController extends Controller
             $trx->user->increment('points', $bonusPoin);
         }
 
-        // Credit user balance
         $trx->user->increment('balance', $totalPrice);
 
-        // Tambahkan kontribusi berdasarkan total harga transaksi
         $kontribusiEarned = (int) floor($totalPrice / 100);
         $levelResult = $trx->user->tambahKontribusi($kontribusiEarned);
 
@@ -127,7 +122,6 @@ class AdminTransaksiController extends Controller
         return redirect('/admin/selesai')->with('success', $successMessage);
     }
 
-    // Tahap 3: Riwayat (Selesai + Ditolak)
     public function selesai(Request $request)
     {
         $tab = $request->get('tab', 'complete');

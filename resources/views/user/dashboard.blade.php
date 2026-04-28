@@ -2,7 +2,6 @@
 @section('title', 'Dashboard | TernakSampah')
 
 @section('content')
-    {{-- News Section --}}
     <div class="mb-10">
         <div class="flex justify-between items-end mb-4">
             <h2 class="text-2xl font-extrabold flex items-center gap-2">Update Hari Ini 📰</h2>
@@ -24,7 +23,6 @@
         </div>
     </div>
 
-    {{-- User Stats Bar --}}
     <div
         class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div class="w-full md:w-auto">
@@ -62,10 +60,8 @@
         </a>
     </div>
 
-    {{-- Main Grid --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="lg:col-span-2 space-y-6 md:space-y-8">
-            {{-- Virtual Tree --}}
             <div
                 class="bg-white rounded-3xl p-4 md:p-6 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
@@ -92,7 +88,6 @@
                 </div>
             </div>
 
-            {{-- AI Trivia --}}
             <div>
                 <h3 class="text-xl font-extrabold mb-4 flex items-center gap-2">🤖 AI Daily Trivia <span
                         class="text-sm font-normal text-slate-400">(Auto-generated dari berita hari ini)</span></h3>
@@ -108,7 +103,6 @@
             </div>
         </div>
 
-        {{-- Sidebar Stats --}}
         <div class="space-y-4">
             <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Saldo Tersedia</p>
@@ -142,7 +136,6 @@
 
 @section('scripts')
     <script>
-        // === LIVE NEWS + AI TRIVIA ENGINE ===
         document.addEventListener('DOMContentLoaded', () => {
             fetchAndIntegrate();
         });
@@ -190,7 +183,6 @@
         async function generateAITrivia(articles) {
             const container = document.getElementById('trivia-container');
 
-            // Show loading state
             container.innerHTML = `
         <div class="col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 text-center">
             <div class="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
@@ -199,7 +191,6 @@
         </div>
     `;
 
-            // Only use the top main article for the trivia
             const mainArticle = articles[0];
             const headlines = [{
                 title: mainArticle.title.split(' - ')[0],
@@ -237,7 +228,6 @@
             const container = document.getElementById('trivia-container');
             container.innerHTML = '';
 
-            // Source badge
             const badgeHTML = source === 'groq' ?
                 `<span class="absolute top-3 right-3 text-[10px] font-bold px-2 py-0.5 rounded-full border bg-purple-100 text-purple-700 border-purple-200">🟣 Powered by Groq AI</span>` :
                 '';
@@ -323,7 +313,6 @@
                     }
                     
                     if (data.completed) {
-                        // Jika sudah 2x jawab, hilangkan trivia card
                         setTimeout(() => {
                             const container = document.getElementById('trivia-container');
                             container.innerHTML = `

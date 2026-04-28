@@ -4,8 +4,6 @@
 @section('content')
 <div class="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100">
     <h2 class="text-xl md:text-2xl font-extrabold mb-6">Riwayat Transaksi</h2>
-    
-    {{-- Tabs --}}
     <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
         @php $currentStatus = request('status', 'semua'); @endphp
         <a href="{{ route('riwayat') }}" class="px-4 py-2 rounded-xl text-sm font-bold transition border-2 whitespace-nowrap {{ $currentStatus === 'semua' ? 'border-green-500 bg-green-500 text-white' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50' }}">
@@ -25,7 +23,6 @@
         </a>
     </div>
 
-    {{-- Mobile Card Layout --}}
     <div class="md:hidden space-y-4">
         @forelse($transactions as $trx)
             <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
@@ -67,7 +64,6 @@
         @endforelse
     </div>
 
-    {{-- Desktop Table Layout --}}
     <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left whitespace-nowrap">
             <thead class="bg-slate-50 border-b border-slate-200">

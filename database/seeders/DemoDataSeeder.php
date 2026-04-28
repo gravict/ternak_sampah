@@ -13,8 +13,6 @@ class DemoDataSeeder extends Seeder
 {
     public function run(): void
     {
-        // 9 demo users (admin already created by AdminSeeder = total 10 users)
-        // We store 'target_balance' to generate appropriate withdrawals later
         $users = [
             [
                 'nik' => '3578012345678901', 'name' => 'Leon Sugiharto',
@@ -94,7 +92,6 @@ class DemoDataSeeder extends Seeder
             $createdUsers[] = $user;
         }
 
-        // Bank accounts
         $bankAccounts = [
             ['user_id' => 1, 'bank' => 'BRI', 'account_number' => '0012345678901', 'account_name' => 'Admin Petugas'],
             ['user_id' => $createdUsers[0]->id, 'bank' => 'BCA', 'account_number' => '0811234567', 'account_name' => 'Leon Sugiharto'],
@@ -112,9 +109,6 @@ class DemoDataSeeder extends Seeder
             BankAccount::firstOrCreate(['user_id' => $ba['user_id'], 'bank' => $ba['bank']], $ba);
         }
 
-        // =============================================
-        // HISTORICAL TRANSACTIONS (12 months of data)
-        // =============================================
         $categories = ['Plastik / PET', 'Kardus / Kertas', 'Besi / Logam', 'Minyak Jelantah', 'Campuran'];
         $methods = ['Drop-off', 'Pick-up'];
         $pickupAddresses = [
@@ -133,7 +127,6 @@ class DemoDataSeeder extends Seeder
             'Campuran' => 1000,
         ];
 
-        // Generate exactly 100 transactions for Untar and 50 for Tomang
         $branchConfigs = [
             'Bank Sampah Untar' => 100,
             'Bank Sampah Tomang' => 50,
@@ -146,12 +139,11 @@ class DemoDataSeeder extends Seeder
                 
                 $category = $categories[array_rand($categories)];
                 $method = $methods[array_rand($methods)];
-                $estWeight = round(rand(10, 200) / 10, 1); // 1.0 - 20.0 kg
-                $actualWeight = round($estWeight * (rand(80, 105) / 100), 1); // 80-105% of estimate
+                $estWeight = round(rand(10, 200) / 10, 1); 
+                $actualWeight = round($estWeight * (rand(80, 105) / 100), 1); 
                 $pricePerKg = $priceMap[$category] ?? 1000;
                 $totalPrice = (int) ($actualWeight * $pricePerKg);
 
-                // Distribute evenly between 1 and 365 days ago
                 $daysAgo = rand(1, 365);
                 $createdAt = now()->subDays($daysAgo)->addHours(rand(8, 17));
                 $updatedAt = (clone $createdAt)->addDays(rand(1, 3));
@@ -184,14 +176,12 @@ class DemoDataSeeder extends Seeder
 
                 Transaction::create($txData);
 
-                // Accumulate to user
                 $user->balance += $totalPrice;
                 $user->points += $points;
                 $user->kontribusi += round($totalPrice / 100);
             }
         }
 
-        // Add some pending, weighing, and rejected for current state
         $recentTx = [
             [
                 'user_id' => $createdUsers[0]->id, 'category' => 'Plastik / PET',
@@ -259,21 +249,14 @@ class DemoDataSeeder extends Seeder
             Transaction::create($tx);
         }
 
-        // =============================================
-        // FINAL CALCULATIONS & WITHDRAWALS
-        // =============================================
         foreach ($createdUsers as $user) {
-            // Generate withdrawals if balance exceeds target_balance
             $targetBalance = $targetBalances[$user->id] ?? 0;
             
             if ($user->balance > $targetBalance) {
-                // Determine how much to withdraw to hit the target balance
                 $amountToWithdraw = $user->balance - $targetBalance;
                 
-                // Fetch user's bank account
                 $bank = BankAccount::where('user_id', $user->id)->first();
                 
-                // Create a withdrawal record
                 WalletHistory::create([
                     'user_id' => $user->id,
                     'amount' => $amountToWithdraw,
@@ -289,14 +272,11 @@ class DemoDataSeeder extends Seeder
                 $user->balance = $targetBalance;
             }
 
-            // Calculate level
             $level = 1;
             while ($level < 20 && $user->kontribusi >= ($level * 100)) {
                 $level++;
             }
             $user->level = $level;
-            
-            // Save the accumulated user data
             $user->save();
         }
     }

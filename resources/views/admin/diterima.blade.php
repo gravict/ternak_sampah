@@ -9,7 +9,6 @@
         </p>
     </div>
 
-    {{-- Mobile Card Layout --}}
     <div class="md:hidden space-y-4">
         @forelse($transactions as $t)
             <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
@@ -37,7 +36,6 @@
         @endforelse
     </div>
 
-    {{-- Desktop Table Layout --}}
     <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left whitespace-nowrap">
@@ -84,7 +82,6 @@
 @endsection
 
 @section('modals')
-    {{-- Selesaikan Modal --}}
     <div id="selesaikanModal" class="fixed inset-0 items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden" style="display:none; z-index: 9999;">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="closeSelesaikanModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
@@ -158,7 +155,6 @@
             modal.classList.add('hidden');
         }
 
-        // Tutup modal jika klik di luar box
         window.onclick = function(event) {
             const modal = document.getElementById('selesaikanModal');
             if (event.target == modal) {

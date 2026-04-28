@@ -7,7 +7,6 @@
     <p class="text-slate-500 text-sm mt-1">Semua transaksi yang telah selesai atau ditolak.</p>
 </div>
 
-{{-- Tabs --}}
 <div class="flex gap-2 mb-6">
     <button onclick="switchTab('complete')" id="tab-complete" class="px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-green-500 bg-green-500 text-white">
 		✅ Selesai ({{ $completeTransactions->count() }})
@@ -17,9 +16,7 @@
 	</button>
 </div>
 
-{{-- Complete Section --}}
 <div id="table-complete">
-    {{-- Mobile Card Layout --}}
     <div class="md:hidden space-y-4">
         @forelse($completeTransactions as $t)
             <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
@@ -44,7 +41,6 @@
         @endforelse
     </div>
 
-    {{-- Desktop Table Layout --}}
     <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left whitespace-nowrap">
@@ -81,9 +77,7 @@
     </div>
 </div>
 
-{{-- Rejected Section --}}
 <div id="table-rejected" class="hidden">
-    {{-- Mobile Card Layout --}}
     <div class="md:hidden space-y-4">
         @forelse($rejectedTransactions as $t)
             <div class="bg-white border border-red-100 p-4 rounded-2xl shadow-sm">
@@ -107,7 +101,6 @@
         @endforelse
     </div>
 
-    {{-- Desktop Table Layout --}}
     <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left whitespace-nowrap">
@@ -141,7 +134,6 @@
 </div>
 @endsection
 
-{{-- Nota Modal --}}
 @section('modals')
 <div id="nota-modal" class="fixed inset-0 z-[300] items-center justify-center bg-black/50 backdrop-blur-sm hidden" style="display:none;">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 relative" onclick="event.stopPropagation()">
@@ -220,7 +212,7 @@ function closeNota() {
     modal.classList.add('hidden');
 }
 
-// Close modal on backdrop click
+
 document.getElementById('nota-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeNota();
 });
