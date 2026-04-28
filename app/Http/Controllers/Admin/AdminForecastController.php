@@ -263,11 +263,12 @@ Berikan rekomendasi bisnis actionable dengan format:
 
         $prompt = $prompts[$type] ?? $prompts['forecast'];
 
-        // ── 5. Panggil Gemini API ──────────────────────────────────────────────
+        // ── 5. Panggil Groq API ──────────────────────────────────────────────
         try {
             $apiKey = env('GROQ_API_KEY');
 
             $response = Http::timeout(30)
+                ->withoutVerifying()
                 ->withHeaders([
                     'Content-Type'  => 'application/json',
                     'Authorization' => 'Bearer ' . $apiKey,
