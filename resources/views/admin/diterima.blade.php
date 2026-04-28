@@ -25,31 +25,12 @@
                     @endif
                 </div>
 
-                <form action="{{ route('admin.selesaikan', $t->id) }}" method="POST" class="pt-3 border-t border-slate-100 space-y-3">
-                    @csrf
-                    <div>
-                        <label class="text-xs font-bold text-blue-700 mb-1 block">Timbangan Asli (Kg)</label>
-                        <input type="number" name="actual_weight" placeholder="{{ $t->est_weight }}"
-                            class="w-full p-3 border border-blue-300 rounded-xl outline-none focus:border-blue-600 font-bold text-blue-700 bg-blue-50"
-                            step="0.1" min="0.1" required>
-                    </div>
-
-                    <div class="flex flex-col gap-2 text-xs text-slate-600">
-                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                            <input type="checkbox" name="is_above_5kg" class="w-4 h-4 text-blue-600 rounded">
-                            <span>Berat > 5 Kg <span class="text-green-600 font-bold">(+10 Poin)</span></span>
-                        </label>
-                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                            <input type="checkbox" name="is_categorized" class="w-4 h-4 text-blue-600 rounded">
-                            <span>Sudah Dikategorikan <span class="text-green-600 font-bold">(+10 Poin)</span></span>
-                        </label>
-                    </div>
-
-                    <button type="submit"
+                <div class="pt-3 border-t border-slate-100">
+                    <button type="button" onclick="openSelesaikanModal({{ $t->id }}, '{{ $t->category }}', {{ $t->est_weight }}, '{{ $t->user->name }}')"
                         class="w-full bg-blue-600 text-white text-sm font-bold px-4 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">
                         Selesaikan & Bayar
                     </button>
-                </form>
+                </div>
             </div>
         @empty
             <div class="p-8 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-200">Tidak ada transaksi yang sedang ditimbang.</div>
@@ -66,7 +47,6 @@
                         <th class="p-4 text-slate-500 font-bold text-sm">Nama User</th>
                         <th class="p-4 text-slate-500 font-bold text-sm text-center">Foto</th>
                         <th class="p-4 text-slate-500 font-bold text-sm">Kategori</th>
-                        <th class="p-4 text-slate-500 font-bold text-sm bg-blue-50">Timbangan Asli (Kg)</th>
                         <th class="p-4 text-slate-500 font-bold text-sm text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -85,30 +65,10 @@
                             </td>
                             <td class="p-4 text-sm font-semibold text-slate-600">{{ $t->category }}<br><span
                                     class="text-xs text-slate-400 font-normal">Est: {{ $t->est_weight }} Kg</span></td>
-                            <td class="p-4 bg-blue-50">
-                                <form action="{{ route('admin.selesaikan', $t->id) }}" method="POST"
-                                    class="flex flex-col gap-2" id="form-{{ $t->id }}">
-                                    @csrf
-                                    <input type="number" name="actual_weight" placeholder="{{ $t->est_weight }}"
-                                        class="w-full p-2 border border-blue-300 rounded-lg outline-none focus:border-blue-600 font-bold text-blue-700"
-                                        step="0.1" min="0.1" required>
-                                    
-                                    <div class="flex flex-col gap-1 text-xs text-slate-600 mt-1">
-                                        <label class="flex items-center gap-1 cursor-pointer">
-                                            <input type="checkbox" name="is_above_5kg" class="w-3 h-3 text-blue-600 rounded">
-                                            Berat > 5 Kg (+10 Poin)
-                                        </label>
-                                        <label class="flex items-center gap-1 cursor-pointer">
-                                            <input type="checkbox" name="is_categorized" class="w-3 h-3 text-blue-600 rounded">
-                                            Sudah Dikategorikan (+10 Poin)
-                                        </label>
-                                    </div>
-                            </td>
-                            <td class="p-4 text-center align-top">
-                                <button type="submit"
+                            <td class="p-4 text-center align-middle">
+                                <button type="button" onclick="openSelesaikanModal({{ $t->id }}, '{{ $t->category }}', {{ $t->est_weight }}, '{{ $t->user->name }}')"
                                     class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm">Selesaikan
                                     & Bayar</button>
-                                </form>
                             </td>
                         </tr>
                     @empty
@@ -121,4 +81,90 @@
             </table>
         </div>
     </div>
+@endsection
+
+@section('modals')
+    {{-- Selesaikan Modal --}}
+    <div id="selesaikanModal" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm hidden overflow-y-auto" style="display:none;">
+        <div class="flex items-center justify-center min-h-screen p-4 sm:p-8">
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-auto p-6 relative text-left" onclick="event.stopPropagation()">
+            <button onclick="closeSelesaikanModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+            <h3 class="text-xl font-extrabold text-slate-800 mb-1">Selesaikan Transaksi <span id="modal-user-name" class="text-blue-600"></span></h3>
+            <p class="text-xs text-slate-500 mb-4" id="modal-category-info"></p>
+
+            <form id="selesaikanForm" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="text-sm font-bold text-slate-700 mb-1 block">Timbangan Asli (Kg)</label>
+                    <input type="number" name="actual_weight" id="modal-actual-weight" placeholder="0.0"
+                        class="w-full p-3 border border-slate-300 rounded-xl outline-none focus:border-blue-600 font-bold bg-slate-50"
+                        step="0.1" min="0.1" required>
+                </div>
+                
+                <div class="flex flex-col gap-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="is_above_5kg" class="w-4 h-4 text-blue-600 rounded">
+                        <span>Berat > 5 Kg <span class="text-green-600 font-bold">(+10 Poin)</span></span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="is_categorized" class="w-4 h-4 text-blue-600 rounded">
+                        <span>Sudah Dikategorikan <span class="text-green-600 font-bold">(+10 Poin)</span></span>
+                    </label>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl text-sm">
+                    <p class="font-bold text-blue-800 mb-1">💳 Instruksi Transfer Pusat</p>
+                    <p class="text-blue-700 text-xs mb-2">Mohon transfer dana ke rekening berikut untuk menyetorkan saldo transaksi:</p>
+                    <div class="bg-white p-2 rounded border border-blue-200 font-mono font-bold text-blue-900 text-center mb-3">
+                        BCA - 5270 3456 78<br>
+                        <span class="text-xs font-normal">a.n. PT TernakSampah Indonesia</span>
+                    </div>
+                    <label class="font-bold text-blue-800 text-xs block mb-1">Unggah Bukti Transfer (Wajib)</label>
+                    <input type="file" name="transfer_proof" accept="image/*" required
+                        class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer border border-blue-200 rounded-lg bg-white">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" class="w-full bg-green-600 text-white text-sm font-bold px-4 py-3 rounded-xl hover:bg-green-700 transition shadow-sm">
+                        Konfirmasi Selesai & Kirim Saldo
+                    </button>
+                </div>
+            </form>
+        </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        function openSelesaikanModal(id, category, estWeight, userName) {
+            const modal = document.getElementById('selesaikanModal');
+            const form = document.getElementById('selesaikanForm');
+            const nameLabel = document.getElementById('modal-user-name');
+            const infoLabel = document.getElementById('modal-category-info');
+            const weightInput = document.getElementById('modal-actual-weight');
+
+            form.action = `/admin/selesaikan/${id}`;
+            nameLabel.innerText = `— ${userName}`;
+            infoLabel.innerText = `Kategori: ${category} | Estimasi: ${estWeight} Kg`;
+            weightInput.placeholder = estWeight;
+
+            modal.style.display = 'block';
+            modal.classList.remove('hidden');
+        }
+
+        function closeSelesaikanModal() {
+            const modal = document.getElementById('selesaikanModal');
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
+
+        // Tutup modal jika klik di luar box
+        window.onclick = function(event) {
+            const modal = document.getElementById('selesaikanModal');
+            if (event.target == modal) {
+                closeSelesaikanModal();
+            }
+        }
+    </script>
 @endsection

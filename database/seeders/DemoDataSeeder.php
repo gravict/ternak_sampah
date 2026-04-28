@@ -141,6 +141,14 @@ class DemoDataSeeder extends Seeder
                 $createdAt = now()->subDays($daysAgo)->addHours(rand(8, 17));
                 $updatedAt = (clone $createdAt)->addDays(rand(1, 3));
 
+                $points = 0;
+                if ($method === 'Drop-off') $points += 10;
+                if ($actualWeight > 5) $points += 10;
+                // Simulasi admin mencentang kategori secara acak (50% peluang)
+                if (rand(0, 1) === 1) {
+                    $points += 10;
+                }
+
                 $txData = [
                     'user_id' => $user->id,
                     'category' => $category,
@@ -149,6 +157,7 @@ class DemoDataSeeder extends Seeder
                     'method' => $method,
                     'status' => 'complete',
                     'total_price' => $totalPrice,
+                    'points_earned' => $points,
                     'dropoff_location' => $branch, // Set dropoff_location to specific branch
                     'created_at' => $createdAt,
                     'updated_at' => $updatedAt,

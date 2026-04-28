@@ -41,13 +41,9 @@ class TransaksiController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Calculate points based on category
-        $ptsMultiplier = str_contains($request->category, 'Plastik') ? 10 : 2;
-        $earnedPoints = (int) floor($request->est_weight * $ptsMultiplier);
+        // Points dan kontribusi akan diberikan saat admin memvalidasi berat asli (actual_weight)
         
-        // Garis merah di bawah 'increment' akan hilang!
-        $user->increment('points', $earnedPoints);
-        
+
         Transaction::create([
             'user_id' => $user->id,
             'category' => $request->category,

@@ -9,6 +9,7 @@ class Transaction extends Model
     protected $fillable = [
         'user_id', 'category', 'est_weight', 'actual_weight',
         'method', 'status', 'reject_reason', 'total_price',
+        'transfer_proof', 'points_earned',
         'photo', 'location_lat', 'location_lng',
         'dropoff_location', 'pickup_address', 'pickup_datetime',
     ];
