@@ -2,10 +2,10 @@
 @section('title', 'Voucher | TernakSampah')
 
 @section('content')
-<div class="bg-gradient-to-r from-orange-500 to-orange-400 rounded-3xl p-8 text-white shadow-lg mb-8 flex justify-between items-center">
+<div class="bg-gradient-to-r from-orange-500 to-orange-400 rounded-3xl p-6 md:p-8 text-white shadow-lg mb-8 flex justify-between items-center">
     <div>
-        <p class="font-bold opacity-90 uppercase tracking-wider text-sm mb-1">Poin Tersedia</p>
-        <h2 class="text-5xl font-extrabold flex items-center gap-2">{{ Auth::user()->points }} <span class="text-2xl">Pts</span></h2>
+        <p class="font-bold opacity-90 uppercase tracking-wider text-xs md:text-sm mb-1">Poin Tersedia</p>
+        <h2 class="text-4xl md:text-5xl font-extrabold flex items-center gap-2">{{ Auth::user()->points }} <span class="text-xl md:text-2xl">Pts</span></h2>
     </div>
     <div class="text-6xl opacity-20 hidden sm:block">🎁</div>
 </div>

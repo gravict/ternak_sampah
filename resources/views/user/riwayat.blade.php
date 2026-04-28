@@ -2,8 +2,8 @@
 @section('title', 'Riwayat | TernakSampah')
 
 @section('content')
-<div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-    <h2 class="text-2xl font-extrabold mb-6">Riwayat Transaksi</h2>
+<div class="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100">
+    <h2 class="text-xl md:text-2xl font-extrabold mb-6">Riwayat Transaksi</h2>
     
     {{-- Tabs --}}
     <div class="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -25,7 +25,47 @@
         </a>
     </div>
 
-    <div class="overflow-x-auto">
+    {{-- Mobile Card Layout --}}
+    <div class="md:hidden space-y-4">
+        @forelse($transactions as $trx)
+            <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800">{{ $trx->category }}</h4>
+                        <p class="text-xs text-slate-500 mt-1">{{ $trx->created_at->translatedFormat('d M Y') }}</p>
+                    </div>
+                    <div class="text-right">
+                        @if($trx->status === 'complete')
+                            <p class="font-extrabold text-green-600">+ Rp {{ number_format($trx->total_price, 0, ',', '.') }}</p>
+                        @else
+                            <p class="font-bold text-slate-400">Rp 0</p>
+                        @endif
+                        <span class="{{ $trx->method_badge }} px-2 py-0.5 rounded text-[10px] font-bold mt-1 inline-block">{{ $trx->method }}</span>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
+                    @php $badge = $trx->status_badge; @endphp
+                    <span class="{{ $badge['class'] }} px-2 py-1 rounded-full text-[10px] font-bold border">{{ $badge['label'] }}</span>
+                    
+                    @if($trx->status === 'rejected' && $trx->reject_reason)
+                        <button onclick="document.getElementById('reason-mob-{{ $trx->id }}').classList.toggle('hidden')" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded font-bold text-slate-600 transition shadow-sm">Lihat Alasan</button>
+                    @elseif($trx->status === 'complete')
+                        <button onclick="showNota({{ $trx->id }}, '{{ Auth::user()->name }}', '{{ Auth::user()->nik }}', '{{ $trx->category }}', '{{ $trx->actual_weight }}', '{{ number_format($trx->total_price, 0, ',', '.') }}', '{{ $trx->updated_at->translatedFormat('d M Y H:i') }}')" class="text-[10px] bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded font-bold border border-green-200 transition shadow-sm">📄 Lihat Nota</button>
+                    @endif
+                </div>
+                @if($trx->status === 'rejected' && $trx->reject_reason)
+                    <div id="reason-mob-{{ $trx->id }}" class="hidden mt-3 bg-red-50 p-3 rounded-xl text-xs text-red-700 italic border border-red-100">
+                        ⚠️ {{ $trx->reject_reason }}
+                    </div>
+                @endif
+            </div>
+        @empty
+            <div class="p-8 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-slate-100">Belum ada riwayat transaksi.</div>
+        @endforelse
+    </div>
+
+    {{-- Desktop Table Layout --}}
+    <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left whitespace-nowrap">
             <thead class="bg-slate-50 border-b border-slate-200">
                 <tr>
@@ -55,15 +95,15 @@
                             @php $badge = $trx->status_badge; @endphp
                             <span class="{{ $badge['class'] }} px-3 py-1 rounded-full text-xs font-bold border">{{ $badge['label'] }}</span>
                             @if($trx->status === 'rejected' && $trx->reject_reason)
-                                <button onclick="document.getElementById('reason-{{ $trx->id }}').classList.toggle('hidden')" class="text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded font-bold text-slate-600 transition shadow-sm">Lihat Alasan</button>
+                                <button onclick="document.getElementById('reason-desk-{{ $trx->id }}').classList.toggle('hidden')" class="text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded font-bold text-slate-600 transition shadow-sm">Lihat Alasan</button>
                             @elseif($trx->status === 'complete')
                                 <button onclick="showNota({{ $trx->id }}, '{{ Auth::user()->name }}', '{{ Auth::user()->nik }}', '{{ $trx->category }}', '{{ $trx->actual_weight }}', '{{ number_format($trx->total_price, 0, ',', '.') }}', '{{ $trx->updated_at->translatedFormat('d M Y H:i') }}')" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded font-bold border border-green-200 transition shadow-sm">📄 Lihat Nota</button>
                             @endif
                         </td>
                     </tr>
                     @if($trx->status === 'rejected' && $trx->reject_reason)
-                        <tr id="reason-{{ $trx->id }}" class="hidden">
-                            <td colspan="5" class="p-4 bg-red-50 text-sm text-red-700 italic">⚠️ {{ $trx->reject_reason }}</td>
+                        <tr id="reason-desk-{{ $trx->id }}" class="hidden">
+                            <td colspan="5" class="p-4 bg-red-50 text-sm text-red-700 italic border-l-4 border-red-500">⚠️ {{ $trx->reject_reason }}</td>
                         </tr>
                     @endif
                 @empty

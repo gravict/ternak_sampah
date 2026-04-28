@@ -5,16 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\WalletHistory;
+use App\Models\BankAccount;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        // Tampung ke variabel $user dan berikan type hinting
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $user->load('bankAccounts');
         return view('user.profile', compact('user'));
+    }
+
+    public function riwayatDompet()
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $walletHistories = WalletHistory::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
+        return view('user.riwayat_dompet', compact('walletHistories'));
     }
 
     public function update(Request $request)
@@ -69,6 +78,17 @@ class ProfileController extends Controller
         }
 
         $user->decrement('balance', $request->amount);
+        $bankAccount = BankAccount::find($request->bank_account_id);
+
+        WalletHistory::create([
+            'user_id' => $user->id,
+            'amount' => $request->amount,
+            'type' => 'withdraw',
+            'status' => 'success', // Assuming auto-success for now
+            'bank_name' => $bankAccount ? $bankAccount->bank : null,
+            'account_number' => $bankAccount ? $bankAccount->account_number : null,
+            'account_name' => $bankAccount ? $bankAccount->account_name : null,
+        ]);
 
         return back()->with('success', 'Dana Rp ' . number_format($request->amount, 0, ',', '.') . ' berhasil diproses untuk penarikan!');
     }

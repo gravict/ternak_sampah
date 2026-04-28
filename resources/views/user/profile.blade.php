@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+    <div class="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100">
         {{-- Profile Photo --}}
         <div class="text-center mb-8">
             <div class="relative inline-block mx-auto">
@@ -135,9 +135,9 @@
                     <input type="text" name="new_account_name" placeholder="Atas Nama" class="w-full p-3 border border-green-200 rounded-xl bg-white outline-none focus:border-green-500 text-sm">
                 </div>
 
-                <div class="flex gap-3">
-                    <input type="number" name="amount" placeholder="Minimal Rp 10.000" min="10000" class="flex-1 p-3 border border-green-200 rounded-xl bg-white outline-none focus:border-green-500" required>
-                    <button type="submit" class="bg-green-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-700 transition shadow-lg" onclick="return confirm('Yakin tarik saldo?')">Tarik</button>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="number" name="amount" placeholder="Minimal Rp 10.000" min="10000" class="w-full sm:flex-1 p-3 border border-green-200 rounded-xl bg-white outline-none focus:border-green-500" required>
+                    <button type="submit" class="w-full sm:w-auto bg-green-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-green-700 transition shadow-lg" onclick="return confirm('Yakin tarik saldo?')">Tarik</button>
                 </div>
             </form>
         </div>

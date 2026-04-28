@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/withdraw', [ProfileController::class, 'withdraw'])->name('withdraw');
+    Route::get('/riwayat-dompet', [ProfileController::class, 'riwayatDompet'])->name('riwayat_dompet');
     Route::post('/trivia/generate', [TriviaController::class, 'generate'])->name('trivia.generate');
     Route::post('/trivia/answer', [TriviaController::class, 'answer'])->name('trivia.answer');
 });

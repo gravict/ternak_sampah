@@ -253,15 +253,19 @@
             resultDiv.innerHTML =
                 '<div class="flex items-center gap-3"><div class="w-5 h-5 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div><span class="text-green-600 font-bold text-sm">Menganalisis data... (bisa memakan waktu 10-20 detik)</span></div>';
 
+            const filter = new URLSearchParams(window.location.search).get('filter') || '1y';
+
             try {
                 const res = await fetch('{{ route('admin.forecast') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
                     },
                     body: JSON.stringify({
-                        type
+                        type: type,
+                        filter: filter
                     }),
                 });
                 const data = await res.json();

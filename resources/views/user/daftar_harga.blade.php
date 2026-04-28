@@ -9,21 +9,21 @@
             <h3 class="text-white font-bold text-xl">Harga Beli Bank Sampah (Per Kg/Liter)</h3>
         </div>
         <div class="overflow-y-auto max-h-[80vh]">
-            <table class="w-full text-left text-base font-semibold text-slate-700">
+            <div class="flex flex-col text-sm sm:text-base font-semibold text-slate-700">
                 @foreach($prices as $category => $items)
-                    <tr class="border-b bg-slate-50">
-                        <td colspan="2" class="p-4 text-sm uppercase text-slate-400 font-bold">{{ $category }}</td>
-                    </tr>
+                    <div class="border-b bg-slate-50 p-3 sm:p-4 text-xs sm:text-sm uppercase text-slate-400 font-bold">
+                        {{ $category }}
+                    </div>
                     @foreach($items as $item)
-                        <tr class="border-b hover:bg-slate-50 transition">
-                            <td class="p-4 pl-8">{{ $item->sub_category }}</td>
-                            <td class="p-4 {{ $item->price_per_unit >= 2000 ? 'text-green-600' : 'text-orange-500' }} text-right">
+                        <div class="flex justify-between items-center border-b hover:bg-slate-50 transition p-3 sm:p-4 pl-5 sm:pl-8 gap-2">
+                            <span>{{ $item->sub_category }}</span>
+                            <span class="{{ $item->price_per_unit >= 2000 ? 'text-green-600' : 'text-orange-500' }} text-right whitespace-nowrap">
                                 Rp {{ number_format($item->price_per_unit, 0, ',', '.') }} / {{ $item->unit }}
-                            </td>
-                        </tr>
+                            </span>
+                        </div>
                     @endforeach
                 @endforeach
-            </table>
+            </div>
         </div>
     </div>
 </div>

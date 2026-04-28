@@ -12,6 +12,7 @@ class AdminDashboardController extends Controller
 {
     public function index(Request $request)
     {
+        $branch = \Illuminate\Support\Facades\Auth::user()->admin_branch;
         // Date filter
         $filter = $request->get('filter', '1y');
         $from = match($filter) {
@@ -40,6 +41,7 @@ class AdminDashboardController extends Controller
         }
 
         $completed = Transaction::where('status', 'complete')
+            ->where('dropoff_location', $branch)
             ->whereBetween('updated_at', [$from, $to]);
 
         // Summary stats
@@ -52,14 +54,15 @@ class AdminDashboardController extends Controller
         $catPlastik = (clone $completed)->where('category', 'like', '%Plastik%')->sum('actual_weight');
         $catKertas = (clone $completed)->where('category', 'like', '%Kertas%')->sum('actual_weight');
         $catLogam = (clone $completed)->where('category', 'like', '%Besi%')
-            ->orWhere(fn($q) => $q->where('status', 'complete')->whereBetween('updated_at', [$from, $to])->where('category', 'like', '%Logam%'))
-            ->orWhere(fn($q) => $q->where('status', 'complete')->whereBetween('updated_at', [$from, $to])->where('category', 'like', '%Tembaga%'))
+            ->orWhere(fn($q) => $q->where('status', 'complete')->where('dropoff_location', $branch)->whereBetween('updated_at', [$from, $to])->where('category', 'like', '%Logam%'))
+            ->orWhere(fn($q) => $q->where('status', 'complete')->where('dropoff_location', $branch)->whereBetween('updated_at', [$from, $to])->where('category', 'like', '%Tembaga%'))
             ->sum('actual_weight');
         $catMinyak = (clone $completed)->where('category', 'like', '%Minyak%')->sum('actual_weight');
         $catCampur = (clone $completed)->where('category', 'like', '%Campuran%')->sum('actual_weight');
 
         // Monthly/daily chart data
         $monthlyData = Transaction::where('status', 'complete')
+            ->where('dropoff_location', $branch)
             ->whereBetween('updated_at', [$from, $to])
             ->select(
                 DB::raw("DATE_FORMAT(updated_at, '%Y-%m') as period"),
@@ -76,6 +79,7 @@ class AdminDashboardController extends Controller
         $monthlyCategoryData = [];
         foreach ($categories as $cat) {
             $monthlyCategoryData[$cat] = Transaction::where('status', 'complete')
+                ->where('dropoff_location', $branch)
                 ->whereBetween('updated_at', [$from, $to])
                 ->where('category', 'like', "%{$cat}%")
                 ->select(

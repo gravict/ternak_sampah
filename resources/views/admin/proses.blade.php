@@ -8,7 +8,54 @@
 </div>
 
 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-    <div class="overflow-x-auto">
+    {{-- Mobile Card Layout --}}
+    <div class="md:hidden space-y-4 p-4">
+        @forelse($transactions as $t)
+            <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm relative">
+                <div class="flex justify-between items-start mb-3 border-b border-slate-100 pb-3">
+                    <div>
+                        <h4 class="font-extrabold text-slate-800 text-base">{{ $t->user->name }}</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">ID: #{{ $t->id }} • {{ $t->created_at->translatedFormat('d M Y') }}</p>
+                    </div>
+                    <div>
+                        <span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700 border-purple-200' : 'bg-blue-100 text-blue-700 border-blue-200' }} border px-2 py-1 rounded text-[10px] font-bold">{{ $t->method }}</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+                    <div class="bg-slate-50 p-2 rounded-xl border border-slate-100">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Kategori</p>
+                        <p class="font-semibold text-slate-700 truncate">{{ $t->category }}</p>
+                    </div>
+                    <div class="bg-orange-50 p-2 rounded-xl border border-orange-100">
+                        <p class="text-[10px] font-bold text-orange-400 uppercase">Est. Berat</p>
+                        <p class="font-bold text-orange-600">{{ $t->est_weight }} Kg</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    @if($t->photo)
+                        <a href="{{ asset('storage/' . $t->photo) }}" target="_blank" class="w-full text-center bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 rounded-xl border border-slate-300 transition shadow-sm">📸 Lihat Bukti Foto</a>
+                    @else
+                        <span class="w-full text-center bg-slate-50 text-slate-400 text-xs font-bold py-2 rounded-xl border border-slate-200">Tidak ada foto</span>
+                    @endif
+                    
+                    <div class="flex gap-2 mt-1">
+                        <form action="{{ route('admin.terima', $t->id) }}" method="POST" class="flex-1">
+                            @csrf
+                            <button type="submit" class="w-full bg-orange-500 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-orange-600 transition shadow-sm">✅ Terima</button>
+                        </form>
+                        <button type="button" onclick="openRejectModal({{ $t->id }}, '{{ $t->user->name }}')" class="flex-1 bg-red-500 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-red-600 transition shadow-sm">🚫 Tolak</button>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="p-6 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-slate-100 text-sm">Belum ada permintaan masuk baru.</div>
+        @endforelse
+    </div>
+
+    {{-- Desktop Table Layout --}}
+    <div class="hidden md:block overflow-x-auto">
         <table class="w-full text-left whitespace-nowrap">
             <thead class="bg-slate-50 border-b border-slate-200">
                 <tr>

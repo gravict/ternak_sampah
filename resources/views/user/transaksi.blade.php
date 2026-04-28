@@ -10,8 +10,8 @@
 <div class="max-w-3xl mx-auto">
     <h2 class="text-3xl font-extrabold mb-6">Form Setor Sampah ♻️</h2>
 
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-        <div class="mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100 flex gap-3 items-start">
+    <div class="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100">
+        <div class="mb-6 bg-blue-50 p-4 rounded-xl border border-blue-100 flex flex-col md:flex-row gap-3 items-start">
             <span class="text-blue-500 text-xl">ℹ️</span>
             <div>
                 <p class="text-sm font-bold text-blue-800">Penilaian Parametrik Bank Sampah</p>
@@ -41,9 +41,9 @@
                 </div>
 
                 {{-- Action Tools --}}
-                <div class="mt-3 flex gap-2 hidden" id="camera_actions">
-                    <button type="button" id="snap_btn" class="flex-1 bg-green-600 text-white px-4 py-3 rounded-xl font-bold shadow hover:bg-green-500 transition">📸 Jepret Foto</button>
-                    <button type="button" id="retake_btn" class="flex-1 bg-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold shadow hover:bg-slate-300 transition hidden">🔄 Ulangi Memotret</button>
+                <div class="mt-3 flex flex-col sm:flex-row gap-2 hidden" id="camera_actions">
+                    <button type="button" id="snap_btn" class="w-full sm:flex-1 bg-green-600 text-white px-4 py-3 rounded-xl font-bold shadow hover:bg-green-500 transition">📸 Jepret Foto</button>
+                    <button type="button" id="retake_btn" class="w-full sm:flex-1 bg-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold shadow hover:bg-slate-300 transition hidden">🔄 Ulangi Memotret</button>
                 </div>
                 
                 <canvas id="camera_canvas" class="w-full h-full object-cover hidden bg-black"></canvas>
@@ -111,12 +111,12 @@
             </div>
 
             {{-- Estimate & Submit --}}
-            <div class="bg-slate-800 p-5 rounded-xl flex justify-between items-center text-white shadow-md mt-4">
+            <div class="bg-slate-800 p-5 rounded-xl flex flex-col md:flex-row justify-between md:items-center text-white shadow-md mt-4 gap-4">
                 <div>
                     <p class="text-xs text-slate-400 font-bold uppercase mb-1">Estimasi Pendapatan</p>
                     <h4 id="trans-est-display" class="text-2xl font-extrabold text-green-400">Rp 0</h4>
                 </div>
-                <button type="submit" class="bg-green-600 text-white font-extrabold px-6 py-3 rounded-xl shadow-lg hover:bg-green-500 transition active:scale-95 text-sm">Kirim Data</button>
+                <button type="submit" class="w-full md:w-auto bg-green-600 text-white font-extrabold px-6 py-3 rounded-xl shadow-lg hover:bg-green-500 transition active:scale-95 text-sm">Kirim Data</button>
             </div>
         </form>
     </div>

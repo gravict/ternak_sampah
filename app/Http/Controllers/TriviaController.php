@@ -12,7 +12,10 @@ class TriviaController extends Controller
 {
     public function answer(Request $request)
     {
-        $request->validate(['is_correct' => 'required|boolean']);
+        $request->validate([
+            'is_correct' => 'required|boolean',
+            'question_index' => 'required|integer|min:0'
+        ]);
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $today = now()->toDateString();
@@ -22,18 +25,24 @@ class TriviaController extends Controller
         }
 
         $cacheKey = 'trivia_ans_' . $user->id . '_' . $today;
-        $answeredCount = Cache::get($cacheKey, 0);
+        $answeredIndices = Cache::get($cacheKey, []);
 
-        if ($answeredCount >= 2) {
+        if (count($answeredIndices) >= 2) {
             return response()->json(['success' => false, 'message' => 'Kamu sudah menjawab maksimal 2 pertanyaan hari ini.']);
         }
 
-        if ($request->is_correct) {
-            $user->points += 15;
+        if (in_array($request->question_index, $answeredIndices)) {
+            return response()->json(['success' => false, 'message' => 'Kamu sudah menjawab pertanyaan ini.']);
         }
 
-        $answeredCount++;
-        Cache::put($cacheKey, $answeredCount, now()->addDay());
+        if ($request->is_correct) {
+            $user->points += 2;
+        }
+
+        $answeredIndices[] = $request->question_index;
+        Cache::put($cacheKey, $answeredIndices, now()->addDay());
+
+        $answeredCount = count($answeredIndices);
 
         // Update streak and last_trivia_date only after completing both questions
         if ($answeredCount >= 2) {
@@ -61,7 +70,7 @@ class TriviaController extends Controller
             'headlines'               => 'required|array|min:1|max:10',
             'headlines.*.title'       => 'required|string|max:300',
             'headlines.*.description' => 'nullable|string|max:2000',
-            'headlines.*.url'         => 'nullable|string|max:500',
+            'headlines.*.url'         => 'nullable|string|max:2000',
         ]);
 
         $headlines = $request->input('headlines');

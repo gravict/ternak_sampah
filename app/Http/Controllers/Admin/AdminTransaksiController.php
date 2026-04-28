@@ -85,11 +85,23 @@ class AdminTransaksiController extends Controller
             'status' => 'complete',
         ]);
 
+        $bonusPoin = 0;
+        if ($request->has('is_above_5kg')) {
+            $bonusPoin += 10;
+        }
+        if ($request->has('is_categorized')) {
+            $bonusPoin += 10;
+        }
+
+        if ($bonusPoin > 0) {
+            $trx->user->increment('points', $bonusPoin);
+        }
+
         // Credit user balance
         $trx->user->increment('balance', $totalPrice);
 
         return redirect('/admin/selesai')->with('success',
-            "Sukses! Dana Rp " . number_format($totalPrice, 0, ',', '.') . " dikirim ke saldo {$trx->user->name}."
+            "Sukses! Dana Rp " . number_format($totalPrice, 0, ',', '.') . " dikirim ke saldo {$trx->user->name}." . ($bonusPoin > 0 ? " (+{$bonusPoin} Poin tambahan diberikan)" : "")
         );
     }
 

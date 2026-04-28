@@ -10,16 +10,15 @@
                 class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200 shadow-sm">{{ now()->translatedFormat('d F Y') }}</span>
         </div>
         <div id="dash-news-container"
-            class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col justify-end min-h-[300px] p-6 group cursor-pointer">
+            class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col justify-end min-h-[250px] md:min-h-[300px] p-4 md:p-6 group cursor-pointer">
             <div
                 class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1611284446314-60a58ac0deb9?q=80&w=1200')] bg-cover bg-center group-hover:scale-105 transition duration-700">
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
             <div class="relative z-10 text-white w-full lg:w-2/3">
-                <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded mb-2 inline-block shadow-md">🌍 Live
-                    Google News</span>
-                <h3 id="dash-news-title" class="text-3xl font-extrabold mb-2 leading-tight">Memuat berita terkini...</h3>
-                <p id="dash-news-desc" class="text-sm text-slate-300 line-clamp-2">Sedang mengambil berita terbaru dari
+                <span class="bg-red-500 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded mb-2 inline-block shadow-md">🌍 Live Google News</span>
+                <h3 id="dash-news-title" class="text-xl md:text-3xl font-extrabold mb-2 leading-tight">Memuat berita terkini...</h3>
+                <p id="dash-news-desc" class="text-xs md:text-sm text-slate-300 line-clamp-2">Sedang mengambil berita terbaru dari
                     Google News...</p>
             </div>
         </div>
@@ -27,8 +26,8 @@
 
     {{-- User Stats Bar --}}
     <div
-        class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <div>
+        class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-slate-100 mb-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div class="w-full md:w-auto">
             <h1 class="text-xl font-extrabold mb-1">Dampak Positifmu, <span
                     class="text-green-600">{{ $user->name }}</span>!</h1>
             <div class="flex items-center gap-4 w-full md:w-96">
@@ -45,17 +44,17 @@
             </div>
         </div>
         <a href="{{ route('profile') }}#withdraw"
-            class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-900 transition flex items-center gap-2 shadow-lg text-sm">
+            class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-900 transition flex items-center justify-center gap-2 shadow-lg text-sm w-full md:w-auto text-center">
             💳 Tarik Saldo
         </a>
     </div>
 
     {{-- Main Grid --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-2 space-y-6 md:space-y-8">
             {{-- Virtual Tree --}}
             <div
-                class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
+                class="bg-white rounded-3xl p-4 md:p-6 shadow-sm border border-slate-100 relative overflow-hidden flex flex-col md:flex-row items-center gap-6">
                 <div class="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
                 <div class="flex-1 text-center md:text-left relative z-10">
                     <h2 class="text-2xl font-extrabold mb-2">Pohon Virtualmu</h2>
@@ -93,29 +92,29 @@
 
         {{-- Sidebar Stats --}}
         <div class="space-y-4">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Saldo Tersedia</p>
-                <h3 class="text-3xl font-extrabold text-slate-800 mb-2">Rp {{ number_format($user->balance, 0, ',', '.') }}
+            <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Saldo Tersedia</p>
+                <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">Rp {{ number_format($user->balance, 0, ',', '.') }}
                 </h3>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Total Poin</p>
-                <h3 class="text-4xl font-extrabold text-orange-500">{{ $user->points }} <span
-                        class="text-lg text-slate-400 font-semibold">Pts</span></h3>
+            <div class="bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-xs md:text-sm text-slate-500 font-bold uppercase tracking-wider mb-1">Total Poin</p>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-orange-500">{{ $user->points }} <span
+                        class="text-base md:text-lg text-slate-400 font-semibold">Pts</span></h3>
             </div>
-            <div class="bg-slate-800 p-6 rounded-2xl shadow-md text-white relative overflow-hidden">
+            <div class="bg-slate-800 p-4 md:p-6 rounded-2xl shadow-md text-white relative overflow-hidden">
                 <div class="absolute right-0 top-0 opacity-10 text-8xl -mr-4 -mt-4">💨</div>
-                <p class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Jejak Karbon Dihindari</p>
-                <h3 class="text-4xl font-extrabold text-emerald-400">{{ $co2Saved }} <span
-                        class="text-lg text-slate-400 font-semibold">Kg CO₂</span></h3>
+                <p class="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Jejak Karbon Dihindari</p>
+                <h3 class="text-3xl md:text-4xl font-extrabold text-emerald-400">{{ $co2Saved }} <span
+                        class="text-base md:text-lg text-slate-400 font-semibold">Kg CO₂</span></h3>
             </div>
             <div
-                class="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl shadow-sm border border-orange-100 relative overflow-hidden">
+                class="bg-gradient-to-br from-orange-50 to-red-50 p-4 md:p-6 rounded-2xl shadow-sm border border-orange-100 relative overflow-hidden">
                 <div class="absolute right-0 top-0 opacity-20 text-7xl -mr-4 -mt-2">🔥</div>
-                <p class="text-sm text-orange-600 font-bold uppercase tracking-wider mb-1">Trivia Streak Aktif</p>
+                <p class="text-xs md:text-sm text-orange-600 font-bold uppercase tracking-wider mb-1">Trivia Streak Aktif</p>
                 <div class="flex items-end gap-2 mb-2">
-                    <h3 class="text-4xl font-extrabold text-orange-600">{{ $user->streak }}</h3>
-                    <span class="text-lg text-orange-500 font-semibold mb-1">Hari</span>
+                    <h3 class="text-3xl md:text-4xl font-extrabold text-orange-600">{{ $user->streak }}</h3>
+                    <span class="text-base md:text-lg text-orange-500 font-semibold mb-1">Hari</span>
                 </div>
                 <p class="text-xs text-orange-600 font-medium">Buka app tiap hari & jawab trivia untuk jaga streak!</p>
             </div>
@@ -231,7 +230,7 @@
                 q.options.forEach((opt, oi) => {
                     const isCorrect = (oi === q.correctIndex);
                     optionsHTML +=
-                        `<button onclick="answerTrivia(${idx+1}, this, ${isCorrect}, 15)" class="bg-white/20 hover:bg-white/40 text-white border border-white/50 py-2 rounded-xl text-xs font-bold transition shadow-sm">${labels[oi]}. ${opt}</button>`;
+                        `<button onclick="answerTrivia(${idx+1}, this, ${isCorrect}, 2, ${idx})" class="bg-white/20 hover:bg-white/40 text-white border border-white/50 py-2 rounded-xl text-xs font-bold transition shadow-sm">${labels[oi]}. ${opt}</button>`;
                 });
 
                 const badgeRowHTML = badgeHTML ?
@@ -273,7 +272,7 @@
             if (!el.classList.contains('flipped')) el.classList.add('flipped');
         }
 
-        async function answerTrivia(num, btn, isCorrect, pts) {
+        async function answerTrivia(num, btn, isCorrect, pts, questionIdx) {
             const fb = document.getElementById('feedback-' + num);
             if (fb.classList.contains('answered')) return;
             fb.classList.add('answered');
@@ -292,7 +291,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ is_correct: isCorrect }),
+                    body: JSON.stringify({ is_correct: isCorrect, question_index: questionIdx }),
                 });
                 const data = await res.json();
                 
