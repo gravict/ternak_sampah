@@ -85,9 +85,8 @@
 
 @section('modals')
     {{-- Selesaikan Modal --}}
-    <div id="selesaikanModal" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm hidden overflow-y-auto" style="display:none;">
-        <div class="flex items-center justify-center min-h-screen p-4 sm:p-8">
-            <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-auto p-6 relative text-left" onclick="event.stopPropagation()">
+    <div id="selesaikanModal" class="fixed inset-0 items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden" style="display:none; z-index: 9999;">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 p-6 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
             <button onclick="closeSelesaikanModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
             <h3 class="text-xl font-extrabold text-slate-800 mb-1">Selesaikan Transaksi <span id="modal-user-name" class="text-blue-600"></span></h3>
             <p class="text-xs text-slate-500 mb-4" id="modal-category-info"></p>
@@ -149,7 +148,7 @@
             infoLabel.innerText = `Kategori: ${category} | Estimasi: ${estWeight} Kg`;
             weightInput.placeholder = estWeight;
 
-            modal.style.display = 'block';
+            modal.style.display = 'flex';
             modal.classList.remove('hidden');
         }
 

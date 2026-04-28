@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\BankAccount;
 use App\Models\Transaction;
+use App\Models\WalletHistory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,70 +14,82 @@ class DemoDataSeeder extends Seeder
     public function run(): void
     {
         // 9 demo users (admin already created by AdminSeeder = total 10 users)
+        // We store 'target_balance' to generate appropriate withdrawals later
         $users = [
             [
                 'nik' => '3578012345678901', 'name' => 'Leon Sugiharto',
                 'email' => 'gravict@gmail.com', 'username' => 'leonsugih',
                 'dob' => '2005-03-12', 'gender' => 'Laki-laki',
-                'points' => 450, 'balance' => 25000, 'streak' => 3,
+                'streak' => 3, 'target_balance' => 25000,
             ],
             [
                 'nik' => '3578012345678902', 'name' => 'Budi Santoso',
                 'email' => 's4nt0s0@email.com', 'username' => 'budisantoso',
                 'dob' => '2000-05-20', 'gender' => 'Laki-laki',
-                'points' => 120, 'balance' => 8000, 'streak' => 1,
+                'streak' => 1, 'target_balance' => 8000,
             ],
             [
                 'nik' => '3578012345678903', 'name' => 'Siti Rahmawati',
                 'email' => 's1t1r4hm4w4t1@email.com', 'username' => 'sitirahmawati',
                 'dob' => '1998-11-08', 'gender' => 'Perempuan',
-                'points' => 780, 'balance' => 52000, 'streak' => 7,
+                'streak' => 7, 'target_balance' => 52000,
             ],
             [
                 'nik' => '3578012345678904', 'name' => 'Ahmad Fauzi',
                 'email' => 'mad17@email.com', 'username' => 'ahmadfauzi',
                 'dob' => '2003-07-15', 'gender' => 'Laki-laki',
-                'points' => 200, 'balance' => 15000, 'streak' => 0,
+                'streak' => 0, 'target_balance' => 15000,
             ],
             [
                 'nik' => '3578012345678905', 'name' => 'Dewi Lestari',
                 'email' => 'brunette@email.com', 'username' => 'dewilestari',
                 'dob' => '2001-02-28', 'gender' => 'Perempuan',
-                'points' => 950, 'balance' => 68000, 'streak' => 12,
+                'streak' => 12, 'target_balance' => 68000,
             ],
             [
                 'nik' => '3578012345678906', 'name' => 'Rizky Pratama',
                 'email' => 'arstep19@email.com', 'username' => 'rizkypratama',
                 'dob' => '1999-09-03', 'gender' => 'Laki-laki',
-                'points' => 330, 'balance' => 22000, 'streak' => 5,
+                'streak' => 5, 'target_balance' => 22000,
             ],
             [
                 'nik' => '3578012345678907', 'name' => 'Putri Ayu Ningrum',
                 'email' => 'pan@email.com', 'username' => 'putriayu',
                 'dob' => '2004-12-19', 'gender' => 'Perempuan',
-                'points' => 60, 'balance' => 3000, 'streak' => 0,
+                'streak' => 0, 'target_balance' => 3000,
             ],
             [
                 'nik' => '3578012345678908', 'name' => 'Hendra Wijaya',
                 'email' => 'hend25@email.com', 'username' => 'hendrawijaya',
                 'dob' => '1997-06-25', 'gender' => 'Laki-laki',
-                'points' => 1200, 'balance' => 95000, 'streak' => 15,
+                'streak' => 15, 'target_balance' => 95000,
             ],
             [
                 'nik' => '3578012345678909', 'name' => 'Nurul Hidayah',
                 'email' => 'nurul2002@email.com', 'username' => 'nurulhidayah',
                 'dob' => '2002-04-10', 'gender' => 'Perempuan',
-                'points' => 500, 'balance' => 35000, 'streak' => 4,
+                'streak' => 4, 'target_balance' => 35000,
             ],
         ];
 
         $createdUsers = [];
+        $targetBalances = [];
         foreach ($users as $userData) {
             $user = User::where('nik', $userData['nik'])->first();
             if (!$user) {
+                $targetBalance = $userData['target_balance'];
+                unset($userData['target_balance']);
+                
                 $user = User::create(array_merge($userData, [
                     'password' => Hash::make('password'),
+                    'points' => 0,
+                    'balance' => 0,
+                    'kontribusi' => 0,
+                    'level' => 1,
                 ]));
+                $targetBalances[$user->id] = $targetBalance;
+            } else {
+                $targetBalances[$user->id] = $userData['target_balance'];
             }
             $createdUsers[] = $user;
         }
@@ -128,7 +141,9 @@ class DemoDataSeeder extends Seeder
 
         foreach ($branchConfigs as $branch => $txCount) {
             for ($i = 0; $i < $txCount; $i++) {
-                $user = $createdUsers[array_rand($createdUsers)];
+                $userKey = array_rand($createdUsers);
+                $user = $createdUsers[$userKey];
+                
                 $category = $categories[array_rand($categories)];
                 $method = $methods[array_rand($methods)];
                 $estWeight = round(rand(10, 200) / 10, 1); // 1.0 - 20.0 kg
@@ -144,7 +159,6 @@ class DemoDataSeeder extends Seeder
                 $points = 0;
                 if ($method === 'Drop-off') $points += 10;
                 if ($actualWeight > 5) $points += 10;
-                // Simulasi admin mencentang kategori secara acak (50% peluang)
                 if (rand(0, 1) === 1) {
                     $points += 10;
                 }
@@ -158,7 +172,7 @@ class DemoDataSeeder extends Seeder
                     'status' => 'complete',
                     'total_price' => $totalPrice,
                     'points_earned' => $points,
-                    'dropoff_location' => $branch, // Set dropoff_location to specific branch
+                    'dropoff_location' => $branch,
                     'created_at' => $createdAt,
                     'updated_at' => $updatedAt,
                 ];
@@ -169,6 +183,11 @@ class DemoDataSeeder extends Seeder
                 }
 
                 Transaction::create($txData);
+
+                // Accumulate to user
+                $user->balance += $totalPrice;
+                $user->points += $points;
+                $user->kontribusi += round($totalPrice / 100);
             }
         }
 
@@ -238,6 +257,47 @@ class DemoDataSeeder extends Seeder
 
         foreach ($recentTx as $tx) {
             Transaction::create($tx);
+        }
+
+        // =============================================
+        // FINAL CALCULATIONS & WITHDRAWALS
+        // =============================================
+        foreach ($createdUsers as $user) {
+            // Generate withdrawals if balance exceeds target_balance
+            $targetBalance = $targetBalances[$user->id] ?? 0;
+            
+            if ($user->balance > $targetBalance) {
+                // Determine how much to withdraw to hit the target balance
+                $amountToWithdraw = $user->balance - $targetBalance;
+                
+                // Fetch user's bank account
+                $bank = BankAccount::where('user_id', $user->id)->first();
+                
+                // Create a withdrawal record
+                WalletHistory::create([
+                    'user_id' => $user->id,
+                    'amount' => $amountToWithdraw,
+                    'type' => 'withdraw',
+                    'status' => 'success',
+                    'bank_name' => $bank ? $bank->bank : 'BCA',
+                    'account_number' => $bank ? $bank->account_number : '1234567890',
+                    'account_name' => $bank ? $bank->account_name : $user->name,
+                    'created_at' => now()->subDays(rand(1, 15)),
+                    'updated_at' => now()->subDays(rand(1, 15)),
+                ]);
+                
+                $user->balance = $targetBalance;
+            }
+
+            // Calculate level
+            $level = 1;
+            while ($level < 20 && $user->kontribusi >= ($level * 100)) {
+                $level++;
+            }
+            $user->level = $level;
+            
+            // Save the accumulated user data
+            $user->save();
         }
     }
 }
