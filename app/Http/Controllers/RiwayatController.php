@@ -8,7 +8,6 @@ class RiwayatController extends Controller
 {
     public function index()
     {
-        // Tampung ke variabel $user dan berikan type hinting
         /** @var \App\Models\User $user */
         $user = Auth::user();
         $query = $user->transactions()->orderBy('created_at', 'desc');

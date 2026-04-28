@@ -14,18 +14,14 @@ use App\Http\Controllers\Admin\AdminTransaksiController;
 use App\Http\Controllers\Admin\AdminForecastController;
 use Illuminate\Support\Facades\Route;
 
-// ==========================================
-// AUTH ROUTES
-// ==========================================
+// Auth Routes
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ==========================================
-// USER ROUTES (Auth Required)
-// ==========================================
+// User Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi');
@@ -44,9 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/trivia/answer', [TriviaController::class, 'answer'])->name('trivia.answer');
 });
 
-// ==========================================
-// ADMIN ROUTES
-// ==========================================
+// Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');

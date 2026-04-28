@@ -24,19 +24,16 @@
             @method('PUT')
 
             <div class="space-y-4 mb-6">
-                {{-- NIK (Always Read-only) --}}
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">NIK KTP</label>
                     <input type="text" value="{{ $user->nik }}" disabled class="w-full text-left font-bold text-slate-400 bg-transparent py-2 border border-transparent outline-none cursor-not-allowed">
                 </div>
 
-                {{-- Profile Photo Upload (hidden by default) --}}
                 <div id="photo-upload-area" class="hidden">
                     <label class="text-xs font-bold text-slate-500 mb-1 block">Ubah Foto Profil</label>
                     <input type="file" name="profile_photo" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
                 </div>
 
-                {{-- Data Fields --}}
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
                     <div>
                         <label class="text-xs font-bold text-slate-500 mb-1 block">Nama Lengkap</label>
@@ -67,7 +64,6 @@
                     </div>
                 </div>
 
-                {{-- Bank Account --}}
                 <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200 pb-2">Rekening Penarikan Utama</p>
                     @php $bank = $user->bankAccounts->first(); @endphp
@@ -92,21 +88,18 @@
                 </div>
             </div>
 
-            {{-- Ubah Data button (shown by default) --}}
             <div id="edit-trigger-area">
                 <button type="button" onclick="toggleEditMode()" class="w-full border-2 border-slate-200 text-slate-500 font-bold py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition flex items-center justify-center gap-2">
                     ✏️ Ubah Data Profil
                 </button>
             </div>
 
-            {{-- Save / Batal (hidden by default) --}}
             <div id="save-btn-area" class="hidden flex flex-col gap-3">
                 <button type="submit" class="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-md">Simpan Perubahan</button>
                 <button type="button" onclick="toggleEditMode()" class="w-full border-2 border-slate-300 text-slate-500 font-bold py-3 rounded-xl hover:bg-slate-50 transition">Batal</button>
             </div>
         </form>
 
-        {{-- Withdraw Section --}}
         <div class="mt-6 bg-green-50 p-5 rounded-2xl border border-green-200" id="withdraw">
             <h3 class="font-extrabold text-green-800 mb-3">💳 Tarik Saldo</h3>
             <p class="text-sm text-green-700 mb-4">Saldo tersedia: <span class="font-bold">Rp {{ number_format($user->balance, 0, ',', '.') }}</span></p>
@@ -122,7 +115,6 @@
                     </select>
                 </div>
 
-                {{-- Inline new account fields (auto-show when "rekening lain" is selected) --}}
                 <div id="wd-new-fields" class="hidden bg-white p-4 rounded-xl border border-green-200 space-y-2">
                     <p class="text-xs font-bold text-green-700 mb-1">Masukkan data rekening baru:</p>
                     <select name="new_bank" class="w-full p-3 border border-green-200 rounded-xl bg-white outline-none focus:border-green-500 text-sm font-semibold">
@@ -142,7 +134,6 @@
             </form>
         </div>
 
-        {{-- Logout --}}
         <form action="{{ route('logout') }}" method="POST" class="mt-4">
             @csrf
             <button type="submit" class="w-full border-2 border-red-500 text-red-500 font-bold py-3 rounded-xl hover:bg-red-50 hover:text-red-600 transition">Keluar (Log Out)</button>

@@ -50,7 +50,6 @@ class AdminForecastController extends Controller
             'Campuran' => 'Campuran',
         ];
 
-        // ── 1. Ambil data historis sesuai filter per kategori ──────────────────────
         $historicalData = [];
         $periods = Transaction::where('status', 'complete')
             ->where('dropoff_location', $branch)
@@ -63,7 +62,6 @@ class AdminForecastController extends Controller
         foreach ($periods as $period) {
             $row = ['periode' => $period];
             foreach ($categories as $label => $keyword) {
-                // Logam khusus check Besi, Logam, Tembaga if keyword is Besi
                 if ($keyword === 'Besi') {
                     $row[$label] = (float) Transaction::where('status', 'complete')
                         ->where('dropoff_location', $branch)
@@ -87,7 +85,6 @@ class AdminForecastController extends Controller
             $historicalData[] = $row;
         }
 
-        // ── 2. Ringkasan total per kategori ────────────────────────
         $summary = [];
         foreach ($categories as $label => $keyword) {
             if ($keyword === 'Besi') {
@@ -116,7 +113,6 @@ class AdminForecastController extends Controller
             $percentage[$label] = $totalAll > 0 ? round(($val / $totalAll) * 100, 1) : 0;
         }
 
-        // ── 3. Rata-rata & tren (setengah periode filter vs setengah sebelumnya)
         $halfPeriod = max(1, (int) ceil($daysDiff / 2));
         $trend = [];
         foreach ($categories as $label => $keyword) {
@@ -149,7 +145,6 @@ class AdminForecastController extends Controller
             ];
         }
 
-        // ── 4. Susun prompt sesuai type ───────────────────────────────────────
         $dataJson    = json_encode($historicalData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $summaryJson = json_encode($summary, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $trendJson   = json_encode($trend, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
@@ -263,7 +258,6 @@ Berikan rekomendasi bisnis actionable dengan format:
 
         $prompt = $prompts[$type] ?? $prompts['forecast'];
 
-        // ── 5. Panggil Groq API ──────────────────────────────────────────────
         try {
             $apiKey = env('GROQ_API_KEY');
 

@@ -10,9 +10,6 @@ class SystemTableSeeder extends Seeder
 {
     public function run(): void
     {
-        // ─────────────────────────────────────────────
-        // 1. JOBS (10 data) — antrian pekerjaan system
-        // ─────────────────────────────────────────────
         $jobPayload = fn($class) => json_encode([
             'uuid' => Str::uuid()->toString(),
             'displayName' => $class,
@@ -44,9 +41,6 @@ class SystemTableSeeder extends Seeder
             ]);
         }
 
-        // ─────────────────────────────────────────────
-        // 2. JOB_BATCHES (10 data) — batch pekerjaan
-        // ─────────────────────────────────────────────
         $batches = [
             ['name' => 'Kirim Email Selamat Datang Batch', 'total' => 50, 'pending' => 0, 'failed' => 0, 'finished' => true],
             ['name' => 'Proses Transaksi Harian', 'total' => 25, 'pending' => 0, 'failed' => 1, 'finished' => true],
@@ -79,9 +73,6 @@ class SystemTableSeeder extends Seeder
             ]);
         }
 
-        // ─────────────────────────────────────────────
-        // 3. FAILED_JOBS (10 data) — pekerjaan gagal
-        // ─────────────────────────────────────────────
         $failedJobs = [
             ['class' => 'App\\Jobs\\SendWelcomeEmail', 'error' => 'Swift_TransportException: Connection could not be established with host smtp.mailtrap.io'],
             ['class' => 'App\\Jobs\\ProcessTransaction', 'error' => 'Illuminate\\Database\\QueryException: SQLSTATE[40001] Deadlock found when trying to get lock'],
@@ -106,9 +97,6 @@ class SystemTableSeeder extends Seeder
             ]);
         }
 
-        // ─────────────────────────────────────────────
-        // 4. PASSWORD_RESET_TOKENS (10 data)
-        // ─────────────────────────────────────────────
         $emails = [
             'leon@ternaksampah.com', 'budi@email.com', 'siti@email.com',
             'ahmad@email.com', 'dewi@email.com', 'rizky@email.com',
@@ -124,9 +112,6 @@ class SystemTableSeeder extends Seeder
             ]);
         }
 
-        // ─────────────────────────────────────────────
-        // 5. SESSIONS (10 data) — sesi aktif user
-        // ─────────────────────────────────────────────
         $userAgents = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124.0.0.0 Safari/537.36',
             'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',
@@ -149,7 +134,7 @@ class SystemTableSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             DB::table('sessions')->insert([
                 'id' => Str::random(40),
-                'user_id' => $i + 1, // user_id 1-10
+                'user_id' => $i + 1,
                 'ip_address' => $ips[$i],
                 'user_agent' => $userAgents[$i],
                 'payload' => base64_encode(serialize([
@@ -161,20 +146,17 @@ class SystemTableSeeder extends Seeder
             ]);
         }
 
-        // ─────────────────────────────────────────────
-        // 6. USER_VOUCHERS (10 data) — voucher yang diklaim user
-        // ─────────────────────────────────────────────
         $userVouchers = [
-            ['user_id' => 2, 'voucher_id' => 1, 'days_ago' => 10],  // Leon → Token PLN 20rb
-            ['user_id' => 2, 'voucher_id' => 2, 'days_ago' => 5],   // Leon → GoPay 10rb
-            ['user_id' => 4, 'voucher_id' => 3, 'days_ago' => 8],   // Siti → Indomaret 25rb
-            ['user_id' => 4, 'voucher_id' => 5, 'days_ago' => 3],   // Siti → Pulsa Telkomsel
-            ['user_id' => 6, 'voucher_id' => 4, 'days_ago' => 7],   // Dewi → OVO 15rb
-            ['user_id' => 6, 'voucher_id' => 6, 'days_ago' => 1],   // Dewi → Alfamart 20rb
-            ['user_id' => 7, 'voucher_id' => 9, 'days_ago' => 4],   // Rizky → Grab 15rb
-            ['user_id' => 9, 'voucher_id' => 7, 'days_ago' => 2],   // Hendra → DANA 25rb
-            ['user_id' => 9, 'voucher_id' => 8, 'days_ago' => 6],   // Hendra → Token PLN 50rb
-            ['user_id' => 10, 'voucher_id' => 10, 'days_ago' => 9], // Nurul → ShopeePay 10rb
+            ['user_id' => 2, 'voucher_id' => 1, 'days_ago' => 10],
+            ['user_id' => 2, 'voucher_id' => 2, 'days_ago' => 5],
+            ['user_id' => 4, 'voucher_id' => 3, 'days_ago' => 8],
+            ['user_id' => 4, 'voucher_id' => 5, 'days_ago' => 3],
+            ['user_id' => 6, 'voucher_id' => 4, 'days_ago' => 7],
+            ['user_id' => 6, 'voucher_id' => 6, 'days_ago' => 1],
+            ['user_id' => 7, 'voucher_id' => 9, 'days_ago' => 4],
+            ['user_id' => 9, 'voucher_id' => 7, 'days_ago' => 2],
+            ['user_id' => 9, 'voucher_id' => 8, 'days_ago' => 6],
+            ['user_id' => 10, 'voucher_id' => 10, 'days_ago' => 9],
         ];
 
         foreach ($userVouchers as $uv) {

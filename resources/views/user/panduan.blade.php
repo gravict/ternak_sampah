@@ -7,7 +7,6 @@
     <p class="text-slate-500 mb-8">Panduan lengkap menggunakan platform TernakSampah, dari pendaftaran hingga pencairan saldo.</p>
 
     <div class="space-y-6">
-        {{-- Step 1: Registrasi --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">1</div>
             <div>
@@ -23,7 +22,6 @@
             </div>
         </div>
 
-        {{-- Step 2: Pilah Sampah --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">2</div>
             <div>
@@ -43,7 +41,6 @@
             </div>
         </div>
 
-        {{-- Step 3: Buat Transaksi --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">3</div>
             <div>
@@ -63,7 +60,6 @@
             </div>
         </div>
 
-        {{-- Step 4: Konfirmasi Admin --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">4</div>
             <div>
@@ -78,7 +74,6 @@
             </div>
         </div>
 
-        {{-- Step 5: Timbang --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">5</div>
             <div>
@@ -92,7 +87,6 @@
             </div>
         </div>
 
-        {{-- Step 6: Saldo Cair --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">6</div>
             <div>
@@ -106,7 +100,6 @@
             </div>
         </div>
 
-        {{-- Step 7: Tarik Saldo --}}
         <div class="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-100 flex gap-4 sm:gap-6 items-start">
             <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-bold flex-shrink-0">7</div>
             <div>
@@ -121,7 +114,6 @@
         </div>
     </div>
 
-    {{-- Fitur Tambahan --}}
     <div class="mt-12">
         <h3 class="text-2xl font-extrabold mb-6">Fitur Tambahan 🌟</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

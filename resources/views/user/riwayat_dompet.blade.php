@@ -9,7 +9,6 @@
     </div>
 
     <div class="bg-white p-4 sm:p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100" id="wallet-history">
-        {{-- Mobile Card Layout --}}
         <div class="md:hidden space-y-4">
             @forelse($walletHistories as $wh)
                 <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
@@ -51,7 +50,6 @@
             @endforelse
         </div>
 
-        {{-- Desktop Table Layout --}}
         <div class="hidden md:block overflow-x-auto">
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead>

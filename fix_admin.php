@@ -14,7 +14,6 @@ if ($u) {
     echo "Not found\n";
 }
 
-// Verify
 $check = \App\Models\User::where('username', 'admin_untar')->first();
 echo "Verify: " . ($check ? "OK - " . $check->name . " (role: " . $check->role . ")" : "FAILED") . "\n";
 echo "Password check: " . (\Illuminate\Support\Facades\Hash::check('admin123', $check->password) ? 'OK' : 'FAIL') . "\n";

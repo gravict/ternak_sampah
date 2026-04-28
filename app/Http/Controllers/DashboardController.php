@@ -9,11 +9,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Tampung ke variabel $user dan berikan type hinting
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // Kalau admin nyasar ke sini, lempar ke admin dashboard
         if ($user->isAdmin()) {
             return redirect('/admin/dashboard');
         }

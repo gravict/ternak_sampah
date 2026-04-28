@@ -27,7 +27,6 @@ class AdminDashboardController extends Controller
         };
         $to = now()->endOfDay();
 
-        // Determine group format based on filter range
         $daysDiff = $from->diffInDays($to);
         if ($daysDiff <= 31) {
             $groupFormat = '%Y-%m-%d';
@@ -44,7 +43,6 @@ class AdminDashboardController extends Controller
             ->where('dropoff_location', $branch)
             ->whereBetween('updated_at', [$from, $to]);
 
-        // Summary stats
         $totalKg = (clone $completed)->sum('actual_weight');
         $totalRp = (clone $completed)->sum('total_price');
         $totalUsers = User::where('role', 'user')
@@ -52,7 +50,6 @@ class AdminDashboardController extends Controller
             ->count();
         $totalTransactions = (clone $completed)->count();
 
-        // Category breakdown
         $catPlastik = (clone $completed)->where('category', 'like', '%Plastik%')->sum('actual_weight');
         $catKertas = (clone $completed)->where('category', 'like', '%Kertas%')->sum('actual_weight');
         $catLogam = (clone $completed)->where('category', 'like', '%Besi%')
@@ -62,7 +59,6 @@ class AdminDashboardController extends Controller
         $catMinyak = (clone $completed)->where('category', 'like', '%Minyak%')->sum('actual_weight');
         $catCampur = (clone $completed)->where('category', 'like', '%Campuran%')->sum('actual_weight');
 
-        // Monthly/daily chart data
         $monthlyData = Transaction::where('status', 'complete')
             ->where('dropoff_location', $branch)
             ->whereBetween('updated_at', [$from, $to])
@@ -76,7 +72,6 @@ class AdminDashboardController extends Controller
             ->orderBy('period')
             ->get();
 
-        // Per-category for stacked chart
         $categories = ['Plastik', 'Kertas', 'Besi', 'Minyak', 'Campuran'];
         $monthlyCategoryData = [];
         foreach ($categories as $cat) {
@@ -93,7 +88,6 @@ class AdminDashboardController extends Controller
                 ->pluck('total_kg', 'period');
         }
 
-        // Build JSON for charts
         $periods = $monthlyData->pluck('period');
         $chartLabels = $periods->map(function($p) use ($groupFormat) {
             if (str_contains($groupFormat, '-W')) {

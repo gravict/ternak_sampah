@@ -7,7 +7,6 @@
     <p class="text-slate-500 text-sm mt-1">Daftar pengguna yang baru saja mengirimkan permintaan setor sampah.</p>
 </div>
 
-{{-- Mobile Card Layout --}}
 <div class="md:hidden space-y-4">
     @forelse($transactions as $t)
         <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
@@ -38,7 +37,6 @@
     @endforelse
 </div>
 
-{{-- Desktop Table Layout --}}
 <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-left whitespace-nowrap">
@@ -85,7 +83,6 @@
 </div>
 @endsection
 
-{{-- Reject Modal --}}
 @section('modals')
 <div id="reject-modal" class="fixed inset-0 z-[300] items-center justify-center bg-black/50 backdrop-blur-sm hidden" style="display:none;">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
@@ -142,7 +139,6 @@ function openRejectModal(id, name) {
     modal.classList.remove('hidden');
     document.getElementById('reject-form').action = `/admin/tolak/${id}`;
     document.getElementById('modal-trx-info').innerText = `#${id} — ${name}`;
-    // Reset
     document.querySelectorAll('input[name="reject_preset"]').forEach(r => r.checked = false);
     document.getElementById('custom-reason-area').classList.add('hidden');
     document.getElementById('custom-reason-text').value = '';
@@ -181,7 +177,6 @@ function submitReject() {
     return true;
 }
 
-// Close modal on backdrop click
 document.getElementById('reject-modal')?.addEventListener('click', function(e) {
     if (e.target === this) closeRejectModal();
 });

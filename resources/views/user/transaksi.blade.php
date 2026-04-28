@@ -24,15 +24,12 @@
             <input type="hidden" name="location_lat" id="location_lat">
             <input type="hidden" name="location_lng" id="location_lng">
 
-            {{-- Photo Upload via WebRTC --}}
             <div>
                 <label class="block text-sm font-bold text-slate-600 mb-2">Foto Fisik Sampah <span class="text-red-500">*</span></label>
                 <p class="text-xs text-slate-500 mb-3">Sistem mewajibkan penggunaan kamera perangkat langsung (File Explorer dimatikan).</p>
                 
-                {{-- Hidden real input --}}
                 <input type="file" id="photo_input" name="photo" accept="image/*" class="hidden" required>
                 
-                {{-- Camera UI --}}
                 <div id="camera_container" class="w-full bg-slate-900 rounded-2xl overflow-hidden relative" style="height: 300px;">
                     <video id="camera_stream" autoplay playsinline class="w-full h-full object-cover"></video>
                     <div id="camera_overlay" class="absolute inset-0 flex items-center justify-center bg-black/50 z-10 transition">
@@ -40,7 +37,6 @@
                     </div>
                 </div>
 
-                {{-- Action Tools --}}
                 <div class="mt-3 flex flex-col sm:flex-row gap-2 hidden" id="camera_actions">
                     <button type="button" id="snap_btn" class="w-full sm:flex-1 bg-green-600 text-white px-4 py-3 rounded-xl font-bold shadow hover:bg-green-500 transition">📸 Jepret Foto</button>
                     <button type="button" id="retake_btn" class="w-full sm:flex-1 bg-slate-200 text-slate-700 px-4 py-3 rounded-xl font-bold shadow hover:bg-slate-300 transition hidden">🔄 Ulangi Memotret</button>
@@ -51,7 +47,6 @@
                 @error('photo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
-            {{-- Category & Weight --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <div class="flex items-center justify-between mb-2">
@@ -72,7 +67,6 @@
                 </div>
             </div>
 
-            {{-- Method --}}
             <div>
                 <label class="block text-sm font-bold text-slate-600 mb-2">Metode Penyerahan</label>
                 <select name="method" id="trans-method" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-green-500" onchange="toggleMethod()">
@@ -81,7 +75,6 @@
                 </select>
             </div>
 
-            {{-- Branch Location (For Drop-off & Pick-up) --}}
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <label class="block text-sm font-bold text-slate-600">Pilih Cabang Bank Sampah Tujuan</label>
                 <select name="dropoff_location" class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white" required>
@@ -93,13 +86,10 @@
                 </select>
             </div>
 
-            {{-- Pick-up Details --}}
             <div id="pickup-area" class="bg-slate-50 p-4 rounded-xl border border-slate-200 hidden">
                 <p class="text-xs font-bold text-red-500 mb-3">⚠️ Biaya Pick-up: Potongan 20% dari estimasi pendapatan</p>
                 <div class="space-y-3">
                     <input type="datetime-local" name="pickup_datetime" class="w-full p-3 border border-slate-200 rounded-xl outline-none bg-white text-sm">
-                    
-                    {{-- Minimap --}}
                     <div>
                         <label class="text-xs font-bold text-slate-600 mb-1 block">📍 Lokasi Penjemputan (Geser pin untuk mengubah)</label>
                         <div id="pickup-map" class="w-full h-48 rounded-xl border border-slate-200 overflow-hidden z-0"></div>
@@ -110,7 +100,6 @@
                 </div>
             </div>
 
-            {{-- Estimate & Submit --}}
             <div class="bg-slate-800 p-5 rounded-xl flex flex-col md:flex-row justify-between md:items-center text-white shadow-md mt-4 gap-4">
                 <div>
                     <p class="text-xs text-slate-400 font-bold uppercase mb-1">Estimasi Pendapatan</p>
@@ -140,9 +129,8 @@ function toggleMethod() {
     updateEstFee();
 }
 
-// === IMAGE COMPRESSION CONFIG ===
-const MAX_DIMENSION = 1280;  // max width or height in pixels
-const JPEG_QUALITY = 0.6;   // compression quality (0.0 - 1.0)
+const MAX_DIMENSION = 1280;
+const JPEG_QUALITY = 0.6;
 
 function formatFileSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
@@ -150,16 +138,10 @@ function formatFileSize(bytes) {
     return (bytes / 1048576).toFixed(2) + ' MB';
 }
 
-/**
- * Compress a canvas to a target max dimension and JPEG quality.
- * Returns a Promise<Blob>.
- */
 function compressCanvasImage(sourceCanvas, maxDim, quality) {
     return new Promise((resolve) => {
         let w = sourceCanvas.width;
         let h = sourceCanvas.height;
-
-        // Calculate scaled dimensions
         if (w > maxDim || h > maxDim) {
             if (w > h) {
                 h = Math.round(h * (maxDim / w));
@@ -169,8 +151,6 @@ function compressCanvasImage(sourceCanvas, maxDim, quality) {
                 h = maxDim;
             }
         }
-
-        // Create a temporary canvas for the compressed version
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = w;
         tempCanvas.height = h;
@@ -183,7 +163,6 @@ function compressCanvasImage(sourceCanvas, maxDim, quality) {
     });
 }
 
-// Camera & Geolocation Integration
 const video = document.getElementById('camera_stream');
 const canvas = document.getElementById('camera_canvas');
 const photoInput = document.getElementById('photo_input');
@@ -208,7 +187,6 @@ startCameraBtn.addEventListener('click', async () => {
 });
 
 snapBtn.addEventListener('click', () => {
-    // Matikan preview sejenak
     video.pause();
     
     statusText.innerText = "⏳ Mendapatkan data satelit dan API lokasi geografis...";
@@ -218,7 +196,6 @@ snapBtn.addEventListener('click', () => {
         let addressText = "Mencari lokasi...";
         if(lat !== null && lng !== null) {
             try {
-                // Reverse geocoding via OpenStreetMap Nominatim API
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
                 const data = await res.json();
                 if(data && data.display_name) addressText = data.display_name;
@@ -234,14 +211,10 @@ snapBtn.addEventListener('click', () => {
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         
-        // 1. Gambar frame/video asli ke Canvas
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // 2. Gambar Background Hitam Transparan di bagian bawah
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, canvas.height - 90, canvas.width, 90);
         
-        // 3. Tulis Teks Watermark (Geotech)
         ctx.fillStyle = "#ffffff";
         ctx.font = "12px sans-serif";
         const now = new Date();
@@ -252,16 +225,11 @@ snapBtn.addEventListener('click', () => {
             ctx.fillText("Koordinat: " + lat.toFixed(6) + ", " + lng.toFixed(6), 15, canvas.height - 43);
         }
         
-        // Potong teks alamat jika terlalu panjang agar muat di layar
         const shortAddr = addressText.length > 110 ? addressText.substring(0, 110) + "..." : addressText;
         ctx.fillText("Lokasi: " + shortAddr, 15, canvas.height - 21);
-
-        // === AUTO COMPRESSION ===
-        // Calculate original size (uncompressed high-quality JPEG)
         const origBlob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', 0.95));
         const originalSize = origBlob.size;
 
-        // Compress the image
         statusText.innerText = "🗜️ Mengompres gambar...";
         statusText.className = "text-xs font-bold mt-3 text-blue-500 border-l-4 border-blue-500 pl-3";
 
@@ -269,13 +237,11 @@ snapBtn.addEventListener('click', () => {
         const compressedSize = compressedBlob.size;
         const savings = Math.round((1 - compressedSize / originalSize) * 100);
 
-        // Inject compressed file into the form input
         const file = new File([compressedBlob], "sampah_capture_" + Date.now() + ".jpg", { type: "image/jpeg" });
         const dt = new DataTransfer();
         dt.items.add(file);
         photoInput.files = dt.files;
         
-        // Ganti tampilan video menjadi canvas agar user bisa melihat form watermarknya!
         video.classList.add('hidden');
         canvas.classList.remove('hidden');
 
@@ -318,7 +284,6 @@ retakeBtn.addEventListener('click', () => {
     statusText.className = "text-xs font-bold mt-3 text-slate-500 border-l-4 border-slate-300 pl-3";
 });
 
-// === PICKUP MINIMAP (Leaflet + OpenStreetMap) ===
 let pickupMap = null;
 let pickupMarker = null;
 let mapInitialized = false;
@@ -330,7 +295,6 @@ function initPickupMap() {
     }
     mapInitialized = true;
 
-    // Default: Jakarta Barat
     const defaultLat = -6.1684;
     const defaultLng = 106.7638;
 
@@ -343,13 +307,11 @@ function initPickupMap() {
     pickupMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(pickupMap);
     pickupMarker.bindPopup('Geser pin ke lokasi penjemputan').openPopup();
 
-    // When marker is dragged, reverse-geocode new position
     pickupMarker.on('dragend', function(e) {
         const pos = e.target.getLatLng();
         reverseGeocodePickup(pos.lat, pos.lng);
     });
 
-    // Try to get user's GPS location
     if (navigator.geolocation) {
         document.getElementById('pickup-map-status').innerText = '📡 Mencari posisi GPS...';
         navigator.geolocation.getCurrentPosition(
@@ -389,7 +351,6 @@ async function reverseGeocodePickup(lat, lng) {
     }
 }
 
-// Override toggleMethod to also init map when Pick-up is selected
 const origToggleMethod = toggleMethod;
 window.toggleMethod = function() {
     origToggleMethod();

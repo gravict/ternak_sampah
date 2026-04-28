@@ -16,7 +16,6 @@ class AuthController extends Controller
             /** @var \App\Models\User $user */
             $user = Auth::user();
 
-            // Arahkan ke tempat yang benar sesuai role
             return $user->isAdmin()
                 ? redirect('/admin/dashboard')
                 : redirect('/dashboard');
@@ -40,7 +39,6 @@ class AuthController extends Controller
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $request->session()->regenerate();
 
-            // Tampung ke variabel $user dan berikan type hinting
             /** @var \App\Models\User $user */
             $user = Auth::user();
 

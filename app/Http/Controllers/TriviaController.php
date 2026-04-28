@@ -44,7 +44,6 @@ class TriviaController extends Controller
 
         $answeredCount = count($answeredIndices);
 
-        // Update streak and last_trivia_date only after completing both questions
         if ($answeredCount >= 2) {
             $yesterday = now()->subDay()->toDateString();
             if ($user->last_trivia_date === $yesterday) {
@@ -78,7 +77,6 @@ class TriviaController extends Controller
 
         $cached = Cache::get($cacheKey);
         if ($cached) {
-            // Handle both old cache format (array of questions) and new format (array with 'questions' and 'sources')
             $questions = isset($cached['questions']) ? $cached['questions'] : $cached;
             $sources = isset($cached['sources']) ? $cached['sources'] : [];
             return response()->json([
@@ -133,14 +131,12 @@ class TriviaController extends Controller
 
     private function callGroq(string $apiKey, array $headlines): array
     {
-        // Build article list with full content for AI
         $headlinesList = collect($headlines)->map(function ($h, $i) {
             $num   = $i + 1;
             $title = is_array($h) ? ($h['title'] ?? '') : $h;
             $desc  = is_array($h) ? ($h['description'] ?? '') : '';
             $url   = is_array($h) ? ($h['url'] ?? '') : '';
 
-            // Attempt to scrape full article content
             if (!empty($url)) {
                 try {
                     $response = Http::timeout(8)
@@ -152,30 +148,24 @@ class TriviaController extends Controller
 
                     if ($response->successful()) {
                         $html = $response->body();
-                        // Prevent warnings from malformed HTML
                         libxml_use_internal_errors(true);
                         $doc = new \DOMDocument();
-                        // Convert encoding to prevent weird characters
                         @$doc->loadHTML('<?xml encoding="UTF-8">' . $html);
                         $paragraphs = $doc->getElementsByTagName('p');
                         
                         $scrapedText = '';
                         foreach ($paragraphs as $p) {
                             $clean = trim($p->textContent);
-                            // Only include substantive paragraphs
                             if (strlen($clean) > 60) {
                                 $scrapedText .= $clean . "\n\n";
                             }
                         }
                         
-                        // If we successfully extracted text, use it instead of the short RSS description
                         if (strlen($scrapedText) > 200) {
-                            // Limit to 4000 chars to avoid exceeding Groq prompt token limits
                             $desc = substr($scrapedText, 0, 4000) . "..."; 
                         }
                     }
                 } catch (\Exception $e) {
-                    // If scraping fails (timeout, blocked, etc.), it silently falls back to the RSS description
                 }
             }
 
@@ -186,7 +176,6 @@ class TriviaController extends Controller
             return $text;
         })->implode("\n\n---\n\n");
 
-        // Collect source URLs for each article
         $sourceUrls = collect($headlines)->map(function ($h) {
             return is_array($h) ? ($h['url'] ?? '') : '';
         })->toArray();

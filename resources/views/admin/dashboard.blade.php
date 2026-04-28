@@ -6,7 +6,6 @@
 @endsection
 
 @section('content')
-    {{-- Header + Filter --}}
     <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
             <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800">Ringkasan Bank Sampah</h1>
@@ -27,7 +26,6 @@
         </form>
     </div>
 
-    {{-- Summary Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
             <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Sampah</p>
@@ -48,21 +46,17 @@
         </div>
     </div>
 
-    {{-- Charts Row --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-        {{-- Line Chart --}}
         <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
             <h3 class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">📈 Sampah Masuk per Bulan (Kg)</h3>
             <canvas id="lineChart" class="w-full" style="max-height: 320px;"></canvas>
         </div>
-        {{-- Pie Chart --}}
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
             <h3 class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">🥧 Komposisi Kategori</h3>
             <canvas id="pieChart" class="w-full" style="max-height: 320px;"></canvas>
         </div>
     </div>
 
-    {{-- Category Breakdown --}}
     <h3 class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">Rincian per Kategori</h3>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-blue-500">
@@ -92,7 +86,6 @@
         </div>
     </div>
 
-    {{-- AI Forecasting Panel --}}
     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 sm:mb-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
             <div>
@@ -120,7 +113,6 @@
         </div>
     </div>
 
-    {{-- Rekening Sentral Info --}}
     <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 flex items-start gap-4">
         <div
             class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
@@ -140,7 +132,6 @@
     <script>
         const chartData = @json($chartData);
 
-        // === Line Chart (By category) ===
         const catColors = {
             'Plastik': 'rgba(59, 130, 246, 1)',
             'Kertas': 'rgba(234, 179, 8, 1)',
@@ -208,7 +199,6 @@
             },
         });
 
-        // === Pie Chart ===
         const pieColors = ['rgba(59,130,246,0.85)', 'rgba(234,179,8,0.85)', 'rgba(30,41,59,0.85)', 'rgba(180,83,9,0.85)',
             'rgba(249,115,22,0.85)'
         ];
@@ -242,12 +232,10 @@
             },
         });
 
-        // === AI Forecasting ===
         async function generateForecast(type) {
             const resultDiv = document.getElementById('ai-result');
             const btn = document.getElementById('btn-' + type);
 
-            // Disable all buttons
             document.querySelectorAll('[id^="btn-"]').forEach(b => {
                 b.disabled = true;
                 b.classList.add('opacity-50');
@@ -273,13 +261,11 @@
                 });
                 const data = await res.json();
 
-                // ✅ Baru
                 const source = data.source === 'gemini' ? '🟢 Powered by AI' :
                     data.source === 'groq' ? '🟣 Powered by AI' :
                     data.source === 'cache' ? '📦 Dari Cache' :
                     '🔶 Mode Offline';
 
-                // Convert markdown-like formatting to HTML
                 let html = data.result
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n/g, '<br>')
@@ -297,7 +283,6 @@
                     '<p class="text-red-500 font-bold text-sm">⚠️ Gagal memuat analisis. Coba lagi nanti.</p>';
             }
 
-            // Re-enable buttons
             document.querySelectorAll('[id^="btn-"]').forEach(b => {
                 b.disabled = false;
                 b.classList.remove('opacity-50');

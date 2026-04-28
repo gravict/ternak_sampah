@@ -11,7 +11,6 @@
 </head>
 <body class="text-slate-800">
 
-    {{-- Flash Messages --}}
     @if(session('success'))
         <div class="alert-toast fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg font-bold text-sm" style="z-index: 200;">
             ✅ {{ session('success') }}
@@ -23,7 +22,6 @@
         </div>
     @endif
 
-    {{-- Navbar --}}
     <nav class="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
         <div class="max-w-[90rem] mx-auto px-6 h-16 flex items-center justify-between">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-2 cursor-pointer flex-shrink-0">
@@ -31,7 +29,6 @@
                 <span class="text-xl font-extrabold text-green-700 tracking-tight hidden lg:block">TernakSampah</span>
             </a>
             
-            {{-- Main Links (Hidden on mobile, visible on tablet/desktop) --}}
             <div class="hidden md:flex gap-6 lg:gap-8 text-sm font-semibold text-slate-500 h-full">
                 <a href="{{ route('dashboard') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('dashboard') ? 'nav-link-active border-green-500 text-green-600' : 'border-transparent' }}">Dashboard</a>
                 <a href="{{ route('transaksi') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('transaksi') ? 'nav-link-active border-green-500 text-green-600' : 'border-transparent' }}">Transaksi</a>
@@ -41,7 +38,6 @@
             </div>
 
             <div class="flex items-center gap-3">
-                {{-- Profile Trigger --}}
                 <div class="relative">
                     <button onclick="toggleProfileDropdown()" class="flex items-center gap-3 cursor-pointer p-1 rounded-full hover:bg-slate-50 transition focus:outline-none relative z-10" id="profileBtn">
                         <div class="w-10 h-10 bg-gradient-to-tr from-green-400 to-emerald-600 rounded-full border-2 border-white shadow-md flex items-center justify-center text-white font-bold overflow-hidden relative">
@@ -53,7 +49,6 @@
                         </div>
                     </button>
                     
-                    {{-- Profile Dropdown Modal --}}
                     <div id="profileDropdown" class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 hidden transform origin-top-right transition-all duration-200 opacity-0 scale-95" style="z-index: 110;">
                         <div class="p-4 border-b border-slate-100 flex items-center gap-3">
                             <div class="w-10 h-10 bg-gradient-to-tr from-green-400 to-emerald-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden flex-shrink-0">
@@ -83,7 +78,6 @@
                     </div>
                 </div>
 
-                {{-- Hamburger Mobile Trigger --}}
                 <button onclick="toggleSidebar()" class="md:hidden text-slate-500 hover:text-green-600 focus:outline-none p-2 rounded-lg bg-slate-50 border border-slate-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
@@ -91,12 +85,8 @@
         </div>
     </nav>
 
-    {{-- Off-Canvas Sidebar (Mobile Main Navigation) --}}
     <div id="mobileSidebar" class="fixed inset-0 hidden md:hidden" style="z-index: 100;">
-        <!-- Backdrop -->
         <div id="sidebarBackdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="toggleSidebar()"></div>
-        
-        <!-- Sidebar Content -->
         <div id="sidebarContent" class="absolute top-0 right-0 h-full w-72 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             <div class="p-6 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -117,9 +107,6 @@
         </div>
     </div>
 
-
-
-    {{-- Main Content --}}
     <main class="max-w-7xl mx-auto px-6 py-8 page-fade-in">
         @yield('content')
     </main>
@@ -127,7 +114,6 @@
     @yield('modals')
     @yield('scripts')
     <script>
-        // Profile Dropdown Toggle
         function toggleProfileDropdown() {
             const dropdown = document.getElementById('profileDropdown');
             if (dropdown.classList.contains('hidden')) {
@@ -145,7 +131,6 @@
             }
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('profileDropdown');
             const trigger = document.getElementById('profileBtn');
@@ -154,7 +139,6 @@
             }
         });
 
-        // Mobile Sidebar Toggle
         function toggleSidebar() {
             const sidebar = document.getElementById('mobileSidebar');
             const backdrop = document.getElementById('sidebarBackdrop');

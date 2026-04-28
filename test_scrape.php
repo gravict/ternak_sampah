@@ -22,7 +22,6 @@ try {
 
     $html = $response->body();
     
-    // Extract <p> tags using DOMDocument
     $doc = new DOMDocument();
     @$doc->loadHTML('<?xml encoding="UTF-8">' . $html);
     $paragraphs = $doc->getElementsByTagName('p');
@@ -30,7 +29,7 @@ try {
     $text = '';
     foreach ($paragraphs as $p) {
         $clean = trim($p->textContent);
-        if (strlen($clean) > 50) { // filter out short UI text
+        if (strlen($clean) > 50) { 
             $text .= $clean . "\n\n";
         }
     }

@@ -11,7 +11,6 @@ class VoucherController extends Controller
 {
     public function index()
     {
-        // Tampung ke variabel $user dan berikan type hinting
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
@@ -26,7 +25,6 @@ class VoucherController extends Controller
         $request->validate(['voucher_id' => 'required|exists:vouchers,id']);
 
         $voucher = Voucher::findOrFail($request->voucher_id);
-        // Tampung ke variabel $user dan berikan type hinting
         /** @var \App\Models\User $user */
         $user = Auth::user();
 

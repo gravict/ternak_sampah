@@ -10,7 +10,6 @@
 </head>
 <body class="text-slate-800" style="background-color: #f1f5f9;">
 
-    {{-- Flash Messages --}}
     @if(session('success'))
         <div class="alert-toast fixed top-4 right-4 z-[200] bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg font-bold text-sm">
             ✅ {{ session('success') }}
@@ -31,7 +30,6 @@
                 </span>
             </a>
 
-            {{-- Desktop Nav Links --}}
             <div class="hidden md:flex gap-4 lg:gap-8 text-sm h-full flex-nowrap whitespace-nowrap">
                 @php
                     $branch = Auth::user()->admin_branch;
@@ -61,7 +59,6 @@
                     <button type="submit" class="text-xs font-bold text-red-500 border border-red-200 bg-red-50 px-3 py-2 rounded-lg hover:bg-red-500 hover:text-white transition">Keluar</button>
                 </form>
 
-                {{-- Hamburger Mobile --}}
                 <button onclick="toggleAdminSidebar()" class="md:hidden text-slate-500 hover:text-green-600 focus:outline-none">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
@@ -69,7 +66,6 @@
         </div>
     </nav>
 
-    {{-- Mobile Sidebar --}}
     <div id="adminSidebar" class="fixed inset-0 hidden" style="z-index: 100;">
         <div id="adminSidebarBackdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="toggleAdminSidebar()"></div>
         <div id="adminSidebarContent" class="absolute top-0 right-0 h-full w-72 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
