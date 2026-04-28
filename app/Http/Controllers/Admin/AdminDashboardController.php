@@ -47,7 +47,9 @@ class AdminDashboardController extends Controller
         // Summary stats
         $totalKg = (clone $completed)->sum('actual_weight');
         $totalRp = (clone $completed)->sum('total_price');
-        $totalUsers = User::where('role', 'user')->count();
+        $totalUsers = User::where('role', 'user')
+            ->whereHas('transactions', fn($q) => $q->where('dropoff_location', $branch))
+            ->count();
         $totalTransactions = (clone $completed)->count();
 
         // Category breakdown
