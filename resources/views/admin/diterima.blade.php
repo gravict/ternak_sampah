@@ -10,62 +10,7 @@
     </div>
 
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-        {{-- Mobile Card Layout --}}
-        <div class="md:hidden space-y-4 p-4">
-            @forelse($transactions as $t)
-                <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-2xl shadow-sm relative">
-                    <div class="flex justify-between items-start mb-3 border-b border-blue-100 pb-3">
-                        <div>
-                            <h4 class="font-extrabold text-slate-800 text-base">{{ $t->user->name }}</h4>
-                            <p class="text-xs text-slate-500 mt-0.5">ID: #{{ $t->id }}</p>
-                        </div>
-                        @if($t->photo)
-                            <a href="{{ asset('storage/' . $t->photo) }}" target="_blank" class="bg-white text-slate-700 text-xs font-bold py-1.5 px-3 rounded-lg border border-slate-200 shadow-sm flex items-center gap-1">📸 Foto</a>
-                        @endif
-                    </div>
-
-                    <div class="mb-4 text-sm">
-                        <div class="bg-white p-3 rounded-xl border border-slate-100">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase">Kategori</p>
-                            <div class="flex justify-between items-center mt-1">
-                                <p class="font-bold text-slate-700">{{ $t->category }}</p>
-                                <span class="text-xs font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded">Est: {{ $t->est_weight }} Kg</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form action="{{ route('admin.selesaikan', $t->id) }}" method="POST" class="flex flex-col gap-3" id="form-mob-{{ $t->id }}">
-                        @csrf
-                        <div class="bg-white p-3 rounded-xl border border-blue-200">
-                            <label class="text-[10px] font-bold text-blue-500 uppercase mb-1 block">Timbangan Asli (Kg)</label>
-                            <input type="number" name="actual_weight" placeholder="{{ $t->est_weight }}"
-                                class="w-full p-2.5 bg-blue-50/50 border border-blue-300 rounded-lg outline-none focus:border-blue-600 font-bold text-blue-800 text-lg text-center"
-                                step="0.1" min="0.1" required>
-                            
-                            <div class="flex flex-col gap-2 text-xs text-slate-700 mt-3 pt-3 border-t border-slate-100">
-                                <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded border border-slate-100">
-                                    <input type="checkbox" name="is_above_5kg" class="w-4 h-4 text-blue-600 rounded border-slate-300">
-                                    <span class="font-semibold">Berat > 5 Kg (+10 Poin)</span>
-                                </label>
-                                <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded border border-slate-100">
-                                    <input type="checkbox" name="is_categorized" class="w-4 h-4 text-blue-600 rounded border-slate-300">
-                                    <span class="font-semibold">Sudah Dikategorikan (+10 Poin)</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="w-full bg-blue-600 text-white text-sm font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-md flex items-center justify-center gap-2">
-                            <span>Selesaikan & Bayar</span> 💸
-                        </button>
-                    </form>
-                </div>
-            @empty
-                <div class="p-6 text-center text-slate-400 italic bg-slate-50 rounded-2xl border border-slate-100 text-sm">Tidak ada transaksi yang sedang ditimbang.</div>
-            @endforelse
-        </div>
-
-        {{-- Desktop Table Layout --}}
-        <div class="hidden md:block overflow-x-auto">
+        <div class="overflow-x-auto">
             <table class="w-full text-left whitespace-nowrap">
                 <thead class="bg-slate-50 border-b border-slate-200">
                     <tr>

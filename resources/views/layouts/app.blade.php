@@ -31,8 +31,8 @@
                 <span class="text-xl font-extrabold text-green-700 tracking-tight hidden lg:block">TernakSampah</span>
             </a>
             
-            {{-- Main Links (Desktop Only) --}}
-            <div class="hidden md:flex gap-8 text-sm font-semibold text-slate-500 h-full">
+            {{-- Main Links (Always Visible, Scrollable on Mobile) --}}
+            <div class="flex gap-6 md:gap-8 text-sm font-semibold text-slate-500 h-full overflow-x-auto whitespace-nowrap hide-scrollbar">
                 <a href="{{ route('dashboard') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('dashboard') ? 'nav-link-active border-green-500 text-green-600' : 'border-transparent' }}">Dashboard</a>
                 <a href="{{ route('transaksi') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('transaksi') ? 'nav-link-active border-green-500 text-green-600' : 'border-transparent' }}">Transaksi</a>
                 <a href="{{ route('panduan') }}" class="nav-link py-5 border-b-2 transition hover:text-green-600 {{ request()->routeIs('panduan') ? 'nav-link-active border-green-500 text-green-600' : 'border-transparent' }}">Panduan</a>
@@ -96,33 +96,9 @@
 
 
     {{-- Main Content --}}
-    <main class="max-w-7xl mx-auto px-6 pt-8 pb-24 md:py-8 page-fade-in">
+    <main class="max-w-7xl mx-auto px-6 py-8 page-fade-in">
         @yield('content')
     </main>
-
-    {{-- Mobile Bottom Navbar --}}
-    <div class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 flex justify-between items-center px-4 py-3 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <a href="{{ route('dashboard') }}" class="flex flex-col items-center gap-1 transition {{ request()->routeIs('dashboard') ? 'text-green-600 scale-110' : 'text-slate-400 hover:text-slate-600' }}">
-            <span class="text-xl">🏠</span>
-            <span class="text-[10px] font-bold">Home</span>
-        </a>
-        <a href="{{ route('transaksi') }}" class="flex flex-col items-center gap-1 transition {{ request()->routeIs('transaksi') ? 'text-green-600 scale-110' : 'text-slate-400 hover:text-slate-600' }}">
-            <span class="text-xl">♻️</span>
-            <span class="text-[10px] font-bold">Setor</span>
-        </a>
-        <a href="{{ route('panduan') }}" class="flex flex-col items-center gap-1 transition {{ request()->routeIs('panduan') ? 'text-green-600 scale-110' : 'text-slate-400 hover:text-slate-600' }}">
-            <span class="text-xl">📖</span>
-            <span class="text-[10px] font-bold">Panduan</span>
-        </a>
-        <a href="{{ route('daftar_harga') }}" class="flex flex-col items-center gap-1 transition {{ request()->routeIs('daftar_harga') ? 'text-green-600 scale-110' : 'text-slate-400 hover:text-slate-600' }}">
-            <span class="text-xl">🏷️</span>
-            <span class="text-[10px] font-bold">Harga</span>
-        </a>
-        <a href="{{ route('berita') }}" class="flex flex-col items-center gap-1 transition {{ request()->routeIs('berita') ? 'text-green-600 scale-110' : 'text-slate-400 hover:text-slate-600' }}">
-            <span class="text-xl">📰</span>
-            <span class="text-[10px] font-bold">Berita</span>
-        </a>
-    </div>
 
     @yield('modals')
     @yield('scripts')
