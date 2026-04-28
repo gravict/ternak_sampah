@@ -63,9 +63,15 @@ class AdminTransaksiController extends Controller
     {
         $request->validate([
             'actual_weight' => 'required|numeric|min:0.1',
+            'transfer_proof' => 'required|image|max:2048',
         ]);
 
         $trx = Transaction::findOrFail($id);
+
+        $transferProofPath = null;
+        if ($request->hasFile('transfer_proof')) {
+            $transferProofPath = $request->file('transfer_proof')->store('transfer_proofs', 'public');
+        }
 
         // Lookup price
         $priceMap = [
@@ -79,12 +85,6 @@ class AdminTransaksiController extends Controller
         $pricePerKg = $priceMap[$trx->category] ?? 1000;
         $totalPrice = (int) ($request->actual_weight * $pricePerKg);
 
-        $trx->update([
-            'actual_weight' => $request->actual_weight,
-            'total_price' => $totalPrice,
-            'status' => 'complete',
-        ]);
-
         $bonusPoin = 0;
         if ($request->has('is_above_5kg')) {
             $bonusPoin += 10;
@@ -92,6 +92,17 @@ class AdminTransaksiController extends Controller
         if ($request->has('is_categorized')) {
             $bonusPoin += 10;
         }
+        if ($trx->method === 'Drop-off') {
+            $bonusPoin += 10;
+        }
+
+        $trx->update([
+            'actual_weight' => $request->actual_weight,
+            'total_price' => $totalPrice,
+            'status' => 'complete',
+            'transfer_proof' => $transferProofPath,
+            'points_earned' => $bonusPoin,
+        ]);
 
         if ($bonusPoin > 0) {
             $trx->user->increment('points', $bonusPoin);
@@ -100,9 +111,20 @@ class AdminTransaksiController extends Controller
         // Credit user balance
         $trx->user->increment('balance', $totalPrice);
 
-        return redirect('/admin/selesai')->with('success',
-            "Sukses! Dana Rp " . number_format($totalPrice, 0, ',', '.') . " dikirim ke saldo {$trx->user->name}." . ($bonusPoin > 0 ? " (+{$bonusPoin} Poin tambahan diberikan)" : "")
-        );
+        // Tambahkan kontribusi berdasarkan total harga transaksi
+        $kontribusiEarned = (int) floor($totalPrice / 100);
+        $levelResult = $trx->user->tambahKontribusi($kontribusiEarned);
+
+        $successMessage = "Sukses! Dana Rp " . number_format($totalPrice, 0, ',', '.') . " dikirim ke saldo {$trx->user->name}.";
+        if ($bonusPoin > 0) {
+            $successMessage .= " (+{$bonusPoin} Poin)";
+        }
+        $successMessage .= " User mendapat +{$kontribusiEarned} Kontribusi.";
+        if ($levelResult['leveled_up']) {
+            $successMessage .= " LEVEL UP ke Level {$levelResult['new_level']}! 🎉";
+        }
+
+        return redirect('/admin/selesai')->with('success', $successMessage);
     }
 
     // Tahap 3: Riwayat (Selesai + Ditolak)

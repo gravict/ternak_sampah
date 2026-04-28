@@ -30,17 +30,30 @@
         <div class="w-full md:w-auto">
             <h1 class="text-xl font-extrabold mb-1">Dampak Positifmu, <span
                     class="text-green-600">{{ $user->name }}</span>!</h1>
-            <div class="flex items-center gap-4 w-full md:w-96">
-                @php
-                    $level = intdiv($user->points, 150) + 1;
-                    $progress = (($user->points % 150) / 150) * 100;
-                @endphp
-                <span class="text-sm font-bold text-slate-500 w-16">Level {{ $level }}</span>
-                <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-full transition-all duration-1000"
-                        style="width: {{ $progress }}%"></div>
+            <div>
+                <div class="flex items-center gap-4 w-full md:w-96">
+                    @php
+                        $progress = $user->kontribusiProgress();
+                        $nextKontribusi = $user->kontribusiUntukNaikLevel();
+                        $baseForCurrentLevel = \App\Models\User::totalKontribusiSampaiLevel($user->level);
+                        $currentInLevel = $user->kontribusi - $baseForCurrentLevel;
+                    @endphp
+                    <span class="text-sm font-bold text-slate-500 w-16">Level {{ $user->level }}</span>
+                    <div class="flex-1 bg-slate-100 h-4 rounded-full overflow-hidden progress-glow">
+                        <div class="bg-gradient-to-r from-green-400 to-green-600 h-full transition-all duration-1000"
+                            style="width: {{ $progress }}%"></div>
+                    </div>
+                    <span class="text-sm font-bold text-green-600 w-16 text-right">{{ $user->level >= 20 ? 'MAX' : 'Level ' . ($user->level + 1) }}</span>
                 </div>
-                <span class="text-sm font-bold text-green-600 w-16 text-right">Level {{ $level + 1 }}</span>
+                @if($user->level < 20)
+                <p class="text-xs text-slate-400 mt-2 text-center md:text-left">
+                    {{ number_format($currentInLevel) }} / {{ number_format($nextKontribusi) }} Kontribusi untuk Level {{ $user->level + 1 }}
+                </p>
+                @else
+                <p class="text-xs text-green-600 font-bold mt-2 text-center md:text-left">
+                    Level Maksimal Tercapai! 🎉
+                </p>
+                @endif
             </div>
         </div>
         <a href="{{ route('profile') }}#withdraw"
@@ -58,19 +71,24 @@
                 <div class="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full blur-3xl -mr-10 -mt-10"></div>
                 <div class="flex-1 text-center md:text-left relative z-10">
                     <h2 class="text-2xl font-extrabold mb-2">Pohon Virtualmu</h2>
-                    <p class="text-slate-500 text-sm mb-4">Setiap kg sampah yang divalidasi admin akan menumbuhkan pohon
-                        ini. Terus setor untuk menyelamatkan bumi!</p>
+                    <p class="text-slate-500 text-sm mb-4">Terus setor sampah untuk mendapatkan Kontribusi, menaikkan level, dan menumbuhkan pohonmu!</p>
                     <a href="{{ route('transaksi') }}"
                         class="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-xl shadow-lg transition-all text-sm">♻️
                         Setor Sampah</a>
                 </div>
                 <div
-                    class="w-40 h-40 bg-gradient-to-b from-green-50 to-emerald-100 rounded-full flex items-center justify-center border-4 border-white shadow-xl relative z-10">
+                    class="w-40 h-40 bg-gradient-to-b from-green-50 to-emerald-100 rounded-full flex flex-col items-center justify-center border-4 border-white shadow-xl relative z-10">
                     @php
-                        $totalKg = $user->transactions()->where('status', 'complete')->sum('actual_weight');
-                        $tree = $totalKg >= 50 ? '🌳' : ($totalKg >= 20 ? '🌲' : ($totalKg >= 5 ? '🌿' : '🌱'));
+                        $pohon = $user->tahapPohon();
                     @endphp
-                    <div class="eco-tree text-7xl">{{ $tree }}</div>
+                    <img src="{{ asset('images/tree/' . $pohon['image']) }}" 
+                         alt="{{ $pohon['label'] }}" 
+                         class="w-28 h-28 object-contain tree-grow eco-tree-img drop-shadow-xl"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="eco-tree text-7xl" style="display: none;">{{ $pohon['emoji'] }}</div>
+                </div>
+                <div class="absolute bottom-2 right-4 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full border border-green-100 shadow-sm z-20">
+                    <p class="text-[10px] font-bold text-green-700">{{ $pohon['label'] }} (Tahap {{ $pohon['stage'] }}/20)</p>
                 </div>
             </div>
 

@@ -9,6 +9,7 @@ class Transaction extends Model
     protected $fillable = [
         'user_id', 'category', 'est_weight', 'actual_weight',
         'method', 'status', 'reject_reason', 'total_price',
+        'transfer_proof', 'points_earned',
         'photo', 'location_lat', 'location_lng',
         'dropoff_location', 'pickup_address', 'pickup_datetime',
     ];
@@ -43,5 +44,21 @@ class Transaction extends Model
         return $this->method === 'Pick-up'
             ? 'bg-purple-100 text-purple-700'
             : 'bg-blue-100 text-blue-700';
+    }
+
+    public function getSavedCarbonAttribute(): float
+    {
+        $factors = [
+            'Plastik / PET' => 2.5,
+            'Besi / Logam' => 3.5,
+            'Kardus / Kertas' => 1.5,
+            'Minyak Jelantah' => 2.0,
+            'Campuran' => 1.0,
+        ];
+
+        $factor = $factors[$this->category] ?? 1.0;
+        $weight = $this->actual_weight > 0 ? $this->actual_weight : $this->est_weight;
+
+        return round((float) $weight * $factor, 2);
     }
 }

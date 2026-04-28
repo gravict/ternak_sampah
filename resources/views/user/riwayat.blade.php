@@ -37,6 +37,9 @@
                     <div class="text-right">
                         @if($trx->status === 'complete')
                             <p class="font-extrabold text-green-600">+ Rp {{ number_format($trx->total_price, 0, ',', '.') }}</p>
+                            @if($trx->points_earned > 0)
+                                <p class="font-bold text-blue-600 text-[10px] mt-0.5">+ {{ $trx->points_earned }} Poin</p>
+                            @endif
                         @else
                             <p class="font-bold text-slate-400">Rp 0</p>
                         @endif
@@ -50,7 +53,7 @@
                     @if($trx->status === 'rejected' && $trx->reject_reason)
                         <button onclick="document.getElementById('reason-mob-{{ $trx->id }}').classList.toggle('hidden')" class="text-[10px] bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded font-bold text-slate-600 transition shadow-sm">Lihat Alasan</button>
                     @elseif($trx->status === 'complete')
-                        <button onclick="showNota({{ $trx->id }}, '{{ Auth::user()->name }}', '{{ Auth::user()->nik }}', '{{ $trx->category }}', '{{ $trx->actual_weight }}', '{{ number_format($trx->total_price, 0, ',', '.') }}', '{{ $trx->updated_at->translatedFormat('d M Y H:i') }}')" class="text-[10px] bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded font-bold border border-green-200 transition shadow-sm">📄 Lihat Nota</button>
+                        <button onclick="showNota({{ $trx->id }}, '{{ Auth::user()->name }}', '{{ Auth::user()->nik }}', '{{ $trx->category }}', '{{ $trx->actual_weight }}', '{{ number_format($trx->total_price, 0, ',', '.') }}', '{{ $trx->updated_at->translatedFormat('d M Y H:i') }}', {{ $trx->points_earned ?? 0 }}, {{ $trx->saved_carbon }})" class="text-[10px] bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded font-bold border border-green-200 transition shadow-sm">📄 Lihat Nota</button>
                     @endif
                 </div>
                 @if($trx->status === 'rejected' && $trx->reject_reason)
@@ -86,7 +89,10 @@
                         </td>
                         <td class="p-4 font-bold {{ $trx->status === 'complete' ? 'text-green-600' : 'text-slate-400' }}">
                             @if($trx->status === 'complete')
-                                + Rp {{ number_format($trx->total_price, 0, ',', '.') }}
+                                <div>+ Rp {{ number_format($trx->total_price, 0, ',', '.') }}</div>
+                                @if($trx->points_earned > 0)
+                                    <div class="text-blue-600 text-[10px] mt-0.5">+ {{ $trx->points_earned }} Poin</div>
+                                @endif
                             @else
                                 Rp 0
                             @endif
@@ -97,7 +103,7 @@
                             @if($trx->status === 'rejected' && $trx->reject_reason)
                                 <button onclick="document.getElementById('reason-desk-{{ $trx->id }}').classList.toggle('hidden')" class="text-xs bg-slate-200 hover:bg-slate-300 px-2 py-1 rounded font-bold text-slate-600 transition shadow-sm">Lihat Alasan</button>
                             @elseif($trx->status === 'complete')
-                                <button onclick="showNota({{ $trx->id }}, '{{ Auth::user()->name }}', '{{ Auth::user()->nik }}', '{{ $trx->category }}', '{{ $trx->actual_weight }}', '{{ number_format($trx->total_price, 0, ',', '.') }}', '{{ $trx->updated_at->translatedFormat('d M Y H:i') }}')" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded font-bold border border-green-200 transition shadow-sm">📄 Lihat Nota</button>
+                                <button onclick="showNota({{ $trx->id }}, '{{ Auth::user()->name }}', '{{ Auth::user()->nik }}', '{{ $trx->category }}', '{{ $trx->actual_weight }}', '{{ number_format($trx->total_price, 0, ',', '.') }}', '{{ $trx->updated_at->translatedFormat('d M Y H:i') }}', {{ $trx->points_earned ?? 0 }}, {{ $trx->saved_carbon }})" class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2 py-1 rounded font-bold border border-green-200 transition shadow-sm">📄 Lihat Nota</button>
                             @endif
                         </td>
                     </tr>
@@ -139,10 +145,15 @@
 
 @section('scripts')
 <script>
-function showNota(id, name, nik, kategori, berat, totalBayar, tanggal) {
+function showNota(id, name, nik, kategori, berat, totalBayar, tanggal, pointsEarned, savedCarbon) {
     const modal = document.getElementById('nota-modal');
     modal.style.display = 'flex';
     modal.classList.remove('hidden');
+
+    let pointsHtml = '';
+    if (pointsEarned > 0) {
+        pointsHtml = `<div class="flex justify-between mt-1"><span class="text-slate-500">Poin Tambahan</span><span class="font-bold text-blue-600">+ ${pointsEarned} Pts</span></div>`;
+    }
 
     document.getElementById('nota-content').innerHTML = `
         <div class="flex justify-between"><span class="text-slate-500">No. Transaksi</span><span class="font-bold text-slate-800">#${id}</span></div>
@@ -153,7 +164,13 @@ function showNota(id, name, nik, kategori, berat, totalBayar, tanggal) {
         <div class="flex justify-between"><span class="text-slate-500">Kategori</span><span class="font-bold text-slate-800">${kategori}</span></div>
         <div class="flex justify-between"><span class="text-slate-500">Berat Aktual</span><span class="font-bold text-slate-800">${berat} Kg</span></div>
         <hr class="border-slate-100">
+        <div class="flex justify-between text-sm bg-green-50 px-3 py-2 rounded-lg border border-green-100 mt-2">
+            <span class="text-green-700 font-bold flex items-center gap-1">🌿 Emisi Dihindari</span>
+            <span class="font-extrabold text-green-800">${savedCarbon} Kg CO₂</span>
+        </div>
+        <hr class="border-slate-100 mt-2">
         <div class="flex justify-between text-lg"><span class="font-extrabold text-slate-800">TOTAL BAYAR</span><span class="font-extrabold text-green-600">Rp ${totalBayar}</span></div>
+        ${pointsHtml}
         <p class="text-[10px] text-slate-400 text-center mt-2">Dana ini telah dikreditkan ke saldo dompet digitalmu.<br>Kamu dapat melakukan penarikan ke rekening pribadi di menu Profil.</p>
     `;
 }
