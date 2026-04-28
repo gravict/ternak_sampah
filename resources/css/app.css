@@ -38,6 +38,15 @@ body {
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 
+/* Hide scrollbar utility (for horizontal nav scroll on mobile) */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
 /* Editable Input States */
 .editable-input:disabled {
     background: transparent;
@@ -59,7 +68,12 @@ body {
 /* Flip Card for Trivia */
 .flip-card {
     perspective: 1000px;
-    height: 300px;
+    height: 260px;
+}
+@media (min-width: 768px) {
+    .flip-card {
+        height: 300px;
+    }
 }
 .flip-card-inner {
     position: relative;

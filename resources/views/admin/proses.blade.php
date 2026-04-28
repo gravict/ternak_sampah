@@ -3,11 +3,43 @@
 
 @section('content')
 <div class="mb-6">
-    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">Menunggu Konfirmasi <span class="bg-orange-100 text-orange-600 text-sm px-3 py-1 rounded-full border border-orange-200">Tahap 1</span></h2>
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-2">Menunggu Konfirmasi <span class="bg-orange-100 text-orange-600 text-xs sm:text-sm px-3 py-1 rounded-full border border-orange-200">Tahap 1</span></h2>
     <p class="text-slate-500 text-sm mt-1">Daftar pengguna yang baru saja mengirimkan permintaan setor sampah.</p>
 </div>
 
-<div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+{{-- Mobile Card Layout --}}
+<div class="md:hidden space-y-4">
+    @forelse($transactions as $t)
+        <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+            <div class="flex justify-between items-start mb-3">
+                <div>
+                    <h4 class="font-bold text-slate-800 text-sm">#{{ $t->id }} — {{ $t->user->name }}</h4>
+                    <p class="text-xs text-slate-400 mt-0.5">{{ $t->created_at->translatedFormat('d M Y') }}</p>
+                </div>
+                @if($t->photo)
+                    <a href="{{ asset('storage/' . $t->photo) }}" target="_blank" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-1.5 px-3 rounded-lg border border-slate-300 transition shadow-sm flex-shrink-0">📸</a>
+                @endif
+            </div>
+            <div class="flex flex-wrap gap-2 mb-3">
+                <span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->method }}</span>
+                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->category }}</span>
+                <span class="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">Est: {{ $t->est_weight }} Kg</span>
+            </div>
+            <div class="flex gap-2 pt-3 border-t border-slate-100">
+                <form action="{{ route('admin.terima', $t->id) }}" method="POST" class="flex-1">
+                    @csrf
+                    <button type="submit" class="w-full bg-orange-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-orange-600 transition shadow-sm">Terima & Timbang</button>
+                </form>
+                <button type="button" onclick="openRejectModal({{ $t->id }}, '{{ $t->user->name }}')" class="flex-1 bg-red-500 text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-red-600 transition shadow-sm">Tolak</button>
+            </div>
+        </div>
+    @empty
+        <div class="p-8 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-200">Belum ada permintaan masuk baru.</div>
+    @endforelse
+</div>
+
+{{-- Desktop Table Layout --}}
+<div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-left whitespace-nowrap">
             <thead class="bg-slate-50 border-b border-slate-200">
@@ -56,7 +88,7 @@
 {{-- Reject Modal --}}
 @section('modals')
 <div id="reject-modal" class="fixed inset-0 z-[300] items-center justify-center bg-black/50 backdrop-blur-sm hidden" style="display:none;">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 relative" onclick="event.stopPropagation()">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 relative max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
         <button onclick="closeRejectModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
 
         <div class="text-center mb-5">

@@ -3,85 +3,140 @@
 
 @section('content')
 <div class="mb-6">
-    <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">Riwayat Transaksi <span class="bg-green-100 text-green-600 text-sm px-3 py-1 rounded-full border border-green-200">Tahap 3</span></h2>
+    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-2">Riwayat Transaksi <span class="bg-green-100 text-green-600 text-xs sm:text-sm px-3 py-1 rounded-full border border-green-200">Tahap 3</span></h2>
     <p class="text-slate-500 text-sm mt-1">Semua transaksi yang telah selesai atau ditolak.</p>
 </div>
 
 {{-- Tabs --}}
 <div class="flex gap-2 mb-6">
-    <button onclick="switchTab('complete')" id="tab-complete" class="px-5 py-2 rounded-xl text-sm font-bold transition border-2 border-green-500 bg-green-500 text-white">
+    <button onclick="switchTab('complete')" id="tab-complete" class="px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-green-500 bg-green-500 text-white">
 		✅ Selesai ({{ $completeTransactions->count() }})
 	</button>
-    <button onclick="switchTab('rejected')" id="tab-rejected" class="px-5 py-2 rounded-xl text-sm font-bold transition border-2 border-slate-200 bg-white text-slate-500 hover:bg-red-50">
+    <button onclick="switchTab('rejected')" id="tab-rejected" class="px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-slate-200 bg-white text-slate-500 hover:bg-red-50">
 		❌ Ditolak ({{ $rejectedTransactions->count() }})
 	</button>
 </div>
 
-{{-- Complete Table --}}
-<div id="table-complete" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left whitespace-nowrap">
-            <thead class="bg-slate-50 border-b border-slate-200">
-                <tr>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Tgl Selesai</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Nama User</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Metode</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Kategori</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Berat Asli</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Total Bayar</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm text-center">Nota</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($completeTransactions as $t)
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-4 text-sm font-semibold text-slate-500">{{ $t->updated_at->translatedFormat('d M Y') }}</td>
-                        <td class="p-4 font-bold text-slate-800 text-sm">{{ $t->user->name }}<br><span class="text-xs text-slate-400 font-normal">#{{ $t->id }}</span></td>
-                        <td class="p-4"><span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-1 rounded-md text-xs font-bold">{{ $t->method }}</span></td>
-                        <td class="p-4 text-sm font-semibold text-slate-600">{{ $t->category }}</td>
-                        <td class="p-4 text-sm font-bold text-slate-800">{{ $t->actual_weight }} Kg</td>
-                        <td class="p-4 font-extrabold text-green-600">Rp {{ number_format($t->total_price, 0, ',', '.') }}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="showNota({{ $t->id }}, '{{ $t->user->name }}', '{{ $t->user->nik }}', '{{ $t->category }}', '{{ $t->actual_weight }}', '{{ number_format($t->total_price, 0, ',', '.') }}', '{{ $t->updated_at->translatedFormat('d M Y H:i') }}')" class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-100 transition">📄 Nota</button>
-                        </td>
+{{-- Complete Section --}}
+<div id="table-complete">
+    {{-- Mobile Card Layout --}}
+    <div class="md:hidden space-y-4">
+        @forelse($completeTransactions as $t)
+            <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">{{ $t->user->name }}</h4>
+                        <p class="text-xs text-slate-400">#{{ $t->id }} · {{ $t->updated_at->translatedFormat('d M Y') }}</p>
+                    </div>
+                    <p class="font-extrabold text-green-600 text-sm">Rp {{ number_format($t->total_price, 0, ',', '.') }}</p>
+                </div>
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                    <span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->method }}</span>
+                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->category }}</span>
+                    <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->actual_weight }} Kg</span>
+                </div>
+                <div class="pt-3 border-t border-slate-100">
+                    <button onclick="showNota({{ $t->id }}, '{{ $t->user->name }}', '{{ $t->user->nik }}', '{{ $t->category }}', '{{ $t->actual_weight }}', '{{ number_format($t->total_price, 0, ',', '.') }}', '{{ $t->updated_at->translatedFormat('d M Y H:i') }}')" class="w-full text-xs font-bold text-green-600 bg-green-50 px-3 py-2 rounded-lg border border-green-200 hover:bg-green-100 transition">📄 Lihat Nota</button>
+                </div>
+            </div>
+        @empty
+            <div class="p-8 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-200">Belum ada riwayat selesai.</div>
+        @endforelse
+    </div>
+
+    {{-- Desktop Table Layout --}}
+    <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Tgl Selesai</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Nama User</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Metode</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Kategori</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Berat Asli</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Total Bayar</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm text-center">Nota</th>
                     </tr>
-                @empty
-                    <tr><td colspan="7" class="p-8 text-center text-slate-400 italic">Belum ada riwayat selesai.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($completeTransactions as $t)
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-4 text-sm font-semibold text-slate-500">{{ $t->updated_at->translatedFormat('d M Y') }}</td>
+                            <td class="p-4 font-bold text-slate-800 text-sm">{{ $t->user->name }}<br><span class="text-xs text-slate-400 font-normal">#{{ $t->id }}</span></td>
+                            <td class="p-4"><span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-1 rounded-md text-xs font-bold">{{ $t->method }}</span></td>
+                            <td class="p-4 text-sm font-semibold text-slate-600">{{ $t->category }}</td>
+                            <td class="p-4 text-sm font-bold text-slate-800">{{ $t->actual_weight }} Kg</td>
+                            <td class="p-4 font-extrabold text-green-600">Rp {{ number_format($t->total_price, 0, ',', '.') }}</td>
+                            <td class="p-4 text-center">
+                                <button onclick="showNota({{ $t->id }}, '{{ $t->user->name }}', '{{ $t->user->nik }}', '{{ $t->category }}', '{{ $t->actual_weight }}', '{{ number_format($t->total_price, 0, ',', '.') }}', '{{ $t->updated_at->translatedFormat('d M Y H:i') }}')" class="text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200 hover:bg-green-100 transition">📄 Nota</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" class="p-8 text-center text-slate-400 italic">Belum ada riwayat selesai.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-{{-- Rejected Table --}}
-<div id="table-rejected" class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left whitespace-nowrap">
-            <thead class="bg-slate-50 border-b border-slate-200">
-                <tr>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Tgl Ditolak</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Nama User</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Metode</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Kategori</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Est. Berat</th>
-                    <th class="p-4 text-slate-500 font-bold text-sm">Alasan Penolakan</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-                @forelse($rejectedTransactions as $t)
-                    <tr class="hover:bg-red-50/30 transition">
-                        <td class="p-4 text-sm font-semibold text-slate-500">{{ $t->updated_at->translatedFormat('d M Y') }}</td>
-                        <td class="p-4 font-bold text-slate-800 text-sm">{{ $t->user->name }}<br><span class="text-xs text-slate-400 font-normal">#{{ $t->id }}</span></td>
-                        <td class="p-4"><span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-1 rounded-md text-xs font-bold">{{ $t->method }}</span></td>
-                        <td class="p-4 text-sm font-semibold text-slate-600">{{ $t->category }}</td>
-                        <td class="p-4 text-sm font-bold text-orange-500">{{ $t->est_weight }} Kg</td>
-                        <td class="p-4 text-sm text-red-600 font-semibold max-w-xs whitespace-normal">{{ $t->reject_reason }}</td>
+{{-- Rejected Section --}}
+<div id="table-rejected" class="hidden">
+    {{-- Mobile Card Layout --}}
+    <div class="md:hidden space-y-4">
+        @forelse($rejectedTransactions as $t)
+            <div class="bg-white border border-red-100 p-4 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">{{ $t->user->name }}</h4>
+                        <p class="text-xs text-slate-400">#{{ $t->id }} · {{ $t->updated_at->translatedFormat('d M Y') }}</p>
+                    </div>
+                    <span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->method }}</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5 mb-3">
+                    <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold">{{ $t->category }}</span>
+                    <span class="bg-orange-100 text-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">Est: {{ $t->est_weight }} Kg</span>
+                </div>
+                <div class="bg-red-50 p-3 rounded-xl border border-red-100">
+                    <p class="text-xs text-red-600 font-semibold">⚠️ {{ $t->reject_reason }}</p>
+                </div>
+            </div>
+        @empty
+            <div class="p-8 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-200">Belum ada transaksi yang ditolak.</div>
+        @endforelse
+    </div>
+
+    {{-- Desktop Table Layout --}}
+    <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left whitespace-nowrap">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Tgl Ditolak</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Nama User</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Metode</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Kategori</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Est. Berat</th>
+                        <th class="p-4 text-slate-500 font-bold text-sm">Alasan Penolakan</th>
                     </tr>
-                @empty
-                    <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Belum ada transaksi yang ditolak.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($rejectedTransactions as $t)
+                        <tr class="hover:bg-red-50/30 transition">
+                            <td class="p-4 text-sm font-semibold text-slate-500">{{ $t->updated_at->translatedFormat('d M Y') }}</td>
+                            <td class="p-4 font-bold text-slate-800 text-sm">{{ $t->user->name }}<br><span class="text-xs text-slate-400 font-normal">#{{ $t->id }}</span></td>
+                            <td class="p-4"><span class="{{ $t->method === 'Pick-up' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }} px-2 py-1 rounded-md text-xs font-bold">{{ $t->method }}</span></td>
+                            <td class="p-4 text-sm font-semibold text-slate-600">{{ $t->category }}</td>
+                            <td class="p-4 text-sm font-bold text-orange-500">{{ $t->est_weight }} Kg</td>
+                            <td class="p-4 text-sm text-red-600 font-semibold max-w-xs whitespace-normal">{{ $t->reject_reason }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Belum ada transaksi yang ditolak.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection
@@ -119,13 +174,13 @@ function switchTab(tab) {
     if (tab === 'complete') {
         complete.classList.remove('hidden');
         rejected.classList.add('hidden');
-        btnComplete.className = 'px-5 py-2 rounded-xl text-sm font-bold transition border-2 border-green-500 bg-green-500 text-white';
-        btnRejected.className = 'px-5 py-2 rounded-xl text-sm font-bold transition border-2 border-slate-200 bg-white text-slate-500 hover:bg-red-50';
+        btnComplete.className = 'px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-green-500 bg-green-500 text-white';
+        btnRejected.className = 'px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-slate-200 bg-white text-slate-500 hover:bg-red-50';
     } else {
         complete.classList.add('hidden');
         rejected.classList.remove('hidden');
-        btnRejected.className = 'px-5 py-2 rounded-xl text-sm font-bold transition border-2 border-red-500 bg-red-500 text-white';
-        btnComplete.className = 'px-5 py-2 rounded-xl text-sm font-bold transition border-2 border-slate-200 bg-white text-slate-500 hover:bg-green-50';
+        btnRejected.className = 'px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-red-500 bg-red-500 text-white';
+        btnComplete.className = 'px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-bold transition border-2 border-slate-200 bg-white text-slate-500 hover:bg-green-50';
     }
 }
 

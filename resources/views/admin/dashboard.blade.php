@@ -7,9 +7,9 @@
 
 @section('content')
     {{-- Header + Filter --}}
-    <div class="mb-8 flex flex-wrap justify-between items-end gap-4">
+    <div class="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
-            <h1 class="text-2xl font-extrabold text-slate-800">Ringkasan Bank Sampah</h1>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800">Ringkasan Bank Sampah</h1>
             <p class="text-slate-500 text-sm">Data akumulasi seluruh transaksi.</p>
         </div>
         <form method="GET" class="flex items-center gap-2">
@@ -28,108 +28,108 @@
     </div>
 
     {{-- Summary Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Sampah</p>
-            <h3 class="text-3xl font-extrabold text-slate-800">{{ number_format($totalKg, 1) }} <span
-                    class="text-sm text-slate-400">Kg</span></h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Sampah</p>
+            <h3 class="text-xl sm:text-3xl font-extrabold text-slate-800">{{ number_format($totalKg, 1) }} <span
+                    class="text-xs sm:text-sm text-slate-400">Kg</span></h3>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Dana</p>
-            <h3 class="text-3xl font-extrabold text-green-600">Rp {{ number_format($totalRp, 0, ',', '.') }}</h3>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Dana</p>
+            <h3 class="text-lg sm:text-3xl font-extrabold text-green-600">Rp {{ number_format($totalRp, 0, ',', '.') }}</h3>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Nasabah</p>
-            <h3 class="text-3xl font-extrabold text-slate-800">{{ $totalUsers }}</h3>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Nasabah</p>
+            <h3 class="text-xl sm:text-3xl font-extrabold text-slate-800">{{ $totalUsers }}</h3>
         </div>
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-            <p class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Transaksi</p>
-            <h3 class="text-3xl font-extrabold text-slate-800">{{ $totalTransactions }}</h3>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Transaksi</p>
+            <h3 class="text-xl sm:text-3xl font-extrabold text-slate-800">{{ $totalTransactions }}</h3>
         </div>
     </div>
 
     {{-- Charts Row --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {{-- Line Chart --}}
-        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h3 class="text-lg font-extrabold text-slate-800 mb-4">📈 Sampah Masuk per Bulan (Kg)</h3>
+        <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">📈 Sampah Masuk per Bulan (Kg)</h3>
             <canvas id="lineChart" class="w-full" style="max-height: 320px;"></canvas>
         </div>
         {{-- Pie Chart --}}
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h3 class="text-lg font-extrabold text-slate-800 mb-4">🥧 Komposisi Kategori</h3>
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">🥧 Komposisi Kategori</h3>
             <canvas id="pieChart" class="w-full" style="max-height: 320px;"></canvas>
         </div>
     </div>
 
     {{-- Category Breakdown --}}
-    <h3 class="text-lg font-extrabold text-slate-800 mb-4">Rincian per Kategori</h3>
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-blue-500">
-            <p class="text-xs text-slate-500 font-bold mb-1">Plastik / PET</p>
-            <h4 class="text-xl font-extrabold">{{ number_format($catPlastik, 1) }} <span
-                    class="text-xs text-slate-400">Kg</span></h4>
+    <h3 class="text-base sm:text-lg font-extrabold text-slate-800 mb-4">Rincian per Kategori</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-blue-500">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold mb-1">Plastik / PET</p>
+            <h4 class="text-lg sm:text-xl font-extrabold">{{ number_format($catPlastik, 1) }} <span
+                    class="text-[10px] sm:text-xs text-slate-400">Kg</span></h4>
         </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-yellow-500">
-            <p class="text-xs text-slate-500 font-bold mb-1">Kertas / Kardus</p>
-            <h4 class="text-xl font-extrabold">{{ number_format($catKertas, 1) }} <span
-                    class="text-xs text-slate-400">Kg</span></h4>
+        <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-yellow-500">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold mb-1">Kertas / Kardus</p>
+            <h4 class="text-lg sm:text-xl font-extrabold">{{ number_format($catKertas, 1) }} <span
+                    class="text-[10px] sm:text-xs text-slate-400">Kg</span></h4>
         </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-slate-800">
-            <p class="text-xs text-slate-500 font-bold mb-1">Logam / Besi</p>
-            <h4 class="text-xl font-extrabold">{{ number_format($catLogam, 1) }} <span
-                    class="text-xs text-slate-400">Kg</span></h4>
+        <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-slate-800">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold mb-1">Logam / Besi</p>
+            <h4 class="text-lg sm:text-xl font-extrabold">{{ number_format($catLogam, 1) }} <span
+                    class="text-[10px] sm:text-xs text-slate-400">Kg</span></h4>
         </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-amber-600">
-            <p class="text-xs text-slate-500 font-bold mb-1">Minyak Jelantah</p>
-            <h4 class="text-xl font-extrabold">{{ number_format($catMinyak, 1) }} <span
-                    class="text-xs text-slate-400">Kg</span></h4>
+        <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-amber-600">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold mb-1">Minyak Jelantah</p>
+            <h4 class="text-lg sm:text-xl font-extrabold">{{ number_format($catMinyak, 1) }} <span
+                    class="text-[10px] sm:text-xs text-slate-400">Kg</span></h4>
         </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-orange-500">
-            <p class="text-xs text-slate-500 font-bold mb-1">Campuran / Residu</p>
-            <h4 class="text-xl font-extrabold">{{ number_format($catCampur, 1) }} <span
-                    class="text-xs text-slate-400">Kg</span></h4>
+        <div class="bg-white p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 border-b-4 border-b-orange-500 col-span-2 sm:col-span-1">
+            <p class="text-[10px] sm:text-xs text-slate-500 font-bold mb-1">Campuran / Residu</p>
+            <h4 class="text-lg sm:text-xl font-extrabold">{{ number_format($catCampur, 1) }} <span
+                    class="text-[10px] sm:text-xs text-slate-400">Kg</span></h4>
         </div>
     </div>
 
     {{-- AI Forecasting Panel --}}
-    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4">
             <div>
-                <h3 class="text-xl font-extrabold text-slate-800 flex items-center gap-2">🤖 AI Insight & Forecasting</h3>
-                <p class="text-slate-500 text-sm mt-1">Analisis otomatis dari data historis bank sampah.</p>
+                <h3 class="text-lg sm:text-xl font-extrabold text-slate-800 flex items-center gap-2">🤖 AI Insight & Forecasting</h3>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1">Analisis otomatis dari data historis bank sampah.</p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <button onclick="generateForecast('forecast')" id="btn-forecast"
-                    class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1">
+                    class="bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1 flex-1 sm:flex-none justify-center">
                     📊 Forecasting
                 </button>
                 <button onclick="generateForecast('trend')" id="btn-trend"
-                    class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1">
+                    class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1 flex-1 sm:flex-none justify-center">
                     📋 Analisis Tren
                 </button>
                 <button onclick="generateForecast('recommendation')" id="btn-recommendation"
-                    class="bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1">
-                    💡 Rekomendasi Bisnis
+                    class="bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold px-3 sm:px-4 py-2 rounded-lg transition shadow-md flex items-center gap-1 w-full sm:w-auto justify-center">
+                    💡 Rekomendasi
                 </button>
             </div>
         </div>
 
-        <div id="ai-result" class="bg-slate-50 rounded-xl p-5 min-h-[120px] border border-slate-100">
+        <div id="ai-result" class="bg-slate-50 rounded-xl p-4 sm:p-5 min-h-[120px] border border-slate-100">
             <p class="text-slate-500 text-sm italic">Klik salah satu tombol di atas untuk memulai analisis AI...</p>
         </div>
     </div>
 
     {{-- Rekening Sentral Info --}}
-    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-start gap-4">
+    <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-200 flex items-start gap-4">
         <div
-            class="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-lg sm:text-xl flex-shrink-0">
             🏦</div>
         <div>
             <h4 class="font-bold text-slate-800 text-sm">Rekening Sentral TernakSampah</h4>
             <p class="text-xs text-slate-500 mt-1">Seluruh pembayaran ke nasabah bersumber dari rekening sentral ini.</p>
-            <div class="mt-2 bg-slate-50 px-4 py-2 rounded-lg border border-slate-100 inline-block">
-                <p class="font-bold text-slate-800 text-sm">Bank BCA — 5270 3456 78 <span
+            <div class="mt-2 bg-slate-50 px-3 sm:px-4 py-2 rounded-lg border border-slate-100 inline-block">
+                <p class="font-bold text-slate-800 text-xs sm:text-sm">Bank BCA — 5270 3456 78 <span
                         class="text-slate-400 font-normal ml-1">a.n. PT TernakSampah Indonesia</span></p>
             </div>
         </div>
@@ -175,10 +175,11 @@
                         position: 'bottom',
                         labels: {
                             font: {
-                                size: 11,
+                                size: 10,
                                 weight: 'bold'
                             },
-                            padding: 12
+                            padding: 8,
+                            boxWidth: 12,
                         }
                     }
                 },
@@ -189,15 +190,16 @@
                         },
                         ticks: {
                             font: {
-                                size: 11
-                            }
+                                size: 10
+                            },
+                            maxRotation: 45,
                         }
                     },
                     y: {
                         beginAtZero: true,
                         ticks: {
                             font: {
-                                size: 11
+                                size: 10
                             },
                             callback: v => v + ' kg'
                         }
@@ -229,10 +231,11 @@
                         position: 'bottom',
                         labels: {
                             font: {
-                                size: 10,
+                                size: 9,
                                 weight: 'bold'
                             },
-                            padding: 8
+                            padding: 6,
+                            boxWidth: 10,
                         }
                     },
                 },
@@ -283,11 +286,11 @@
                     .replace(/• /g, '&bull; ');
 
                 resultDiv.innerHTML = `
-            <div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-3">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 border-b border-slate-200 pb-3 gap-2">
                 <span class="text-xs font-bold text-slate-500 uppercase">${type === 'forecast' ? '📊 Forecasting' : type === 'trend' ? '📋 Analisis Tren' : '💡 Rekomendasi Bisnis'}</span>
                 <span class="text-[10px] font-bold px-2 py-1 rounded-md ${data.source === 'gemini' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-orange-100 text-orange-700 border border-orange-200'}">${source}</span>
             </div>
-            <div class="text-sm text-slate-700 leading-relaxed space-y-2">${html}</div>
+            <div class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2">${html}</div>
         `;
             } catch (e) {
                 resultDiv.innerHTML =

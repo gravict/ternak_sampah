@@ -67,7 +67,7 @@ class AdminDashboardController extends Controller
             ->where('dropoff_location', $branch)
             ->whereBetween('updated_at', [$from, $to])
             ->select(
-                DB::raw("DATE_FORMAT(updated_at, '%Y-%m') as period"),
+                DB::raw("DATE_FORMAT(updated_at, '{$groupFormat}') as period"),
                 DB::raw("SUM(actual_weight) as total_kg"),
                 DB::raw("SUM(total_price) as total_rp"),
                 DB::raw("COUNT(*) as count")

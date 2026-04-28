@@ -22,24 +22,21 @@ class AdminAuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'branch' => 'required|string',
+            'username' => 'required|string',
             'password' => 'required',
         ]);
 
-        
-        // Try admin login with a fixed admin username
-        if (Auth::attempt(['username' => 'admin', 'password' => $request->password])) {
+        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             /** @var \App\Models\User $user */
             $user = Auth::user();
             if ($user->isAdmin()) {
-                $user->update(['admin_branch' => $request->branch]);
                 $request->session()->regenerate();
                 return redirect('/admin/dashboard');
             }
             Auth::logout();
         }
 
-        return back()->withErrors(['password' => 'Password admin salah.'])->withInput();
+        return back()->withErrors(['password' => 'Username atau password salah.'])->withInput();
     }
 
     public function logout(Request $request)

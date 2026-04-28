@@ -69,10 +69,10 @@ class AdminSeeder extends Seeder
         ];
 
         foreach ($admins as $admin) {
-            $user = User::where('nik', $admin['nik'])->first();
-            if (!$user) {
-                User::create($admin);
-            }
+            User::updateOrCreate(
+                ['nik' => $admin['nik']],
+                $admin
+            );
         }
     }
 }

@@ -3,13 +3,61 @@
 
 @section('content')
     <div class="mb-6">
-        <h2 class="text-2xl font-extrabold text-slate-800 flex items-center gap-2">Validasi & Timbang <span
-                class="bg-blue-100 text-blue-600 text-sm px-3 py-1 rounded-full border border-blue-200">Tahap 2</span></h2>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-2">Validasi & Timbang <span
+                class="bg-blue-100 text-blue-600 text-xs sm:text-sm px-3 py-1 rounded-full border border-blue-200">Tahap 2</span></h2>
         <p class="text-slate-500 text-sm mt-1">Masukkan berat asli hasil timbangan di lapangan untuk mencairkan saldo user.
         </p>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+    {{-- Mobile Card Layout --}}
+    <div class="md:hidden space-y-4">
+        @forelse($transactions as $t)
+            <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">#{{ $t->id }} — {{ $t->user->name }}</h4>
+                        <p class="text-xs text-slate-500 mt-0.5">{{ $t->category }}</p>
+                        <p class="text-xs text-slate-400">Est: {{ $t->est_weight }} Kg</p>
+                    </div>
+                    @if ($t->photo)
+                        <a href="{{ asset('storage/' . $t->photo) }}" target="_blank"
+                            class="bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold py-1 px-2 rounded border border-slate-300 transition flex-shrink-0">📸</a>
+                    @endif
+                </div>
+
+                <form action="{{ route('admin.selesaikan', $t->id) }}" method="POST" class="pt-3 border-t border-slate-100 space-y-3">
+                    @csrf
+                    <div>
+                        <label class="text-xs font-bold text-blue-700 mb-1 block">Timbangan Asli (Kg)</label>
+                        <input type="number" name="actual_weight" placeholder="{{ $t->est_weight }}"
+                            class="w-full p-3 border border-blue-300 rounded-xl outline-none focus:border-blue-600 font-bold text-blue-700 bg-blue-50"
+                            step="0.1" min="0.1" required>
+                    </div>
+
+                    <div class="flex flex-col gap-2 text-xs text-slate-600">
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                            <input type="checkbox" name="is_above_5kg" class="w-4 h-4 text-blue-600 rounded">
+                            <span>Berat > 5 Kg <span class="text-green-600 font-bold">(+10 Poin)</span></span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                            <input type="checkbox" name="is_categorized" class="w-4 h-4 text-blue-600 rounded">
+                            <span>Sudah Dikategorikan <span class="text-green-600 font-bold">(+10 Poin)</span></span>
+                        </label>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-blue-600 text-white text-sm font-bold px-4 py-3 rounded-xl hover:bg-blue-700 transition shadow-sm">
+                        Selesaikan & Bayar
+                    </button>
+                </form>
+            </div>
+        @empty
+            <div class="p-8 text-center text-slate-400 italic bg-white rounded-2xl border border-slate-200">Tidak ada transaksi yang sedang ditimbang.</div>
+        @endforelse
+    </div>
+
+    {{-- Desktop Table Layout --}}
+    <div class="hidden md:block bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left whitespace-nowrap">
                 <thead class="bg-slate-50 border-b border-slate-200">

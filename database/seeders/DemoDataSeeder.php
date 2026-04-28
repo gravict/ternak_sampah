@@ -104,7 +104,6 @@ class DemoDataSeeder extends Seeder
         // =============================================
         $categories = ['Plastik / PET', 'Kardus / Kertas', 'Besi / Logam', 'Minyak Jelantah', 'Campuran'];
         $methods = ['Drop-off', 'Pick-up'];
-        $locations = ['Bank Sampah Untar (Kampus 1, Jl. Letjen S. Parman)', 'Bank Sampah Tomang (Jl. Tomang Raya No 10)'];
         $pickupAddresses = [
             'Jl. Tanjung Duren Barat No. 12, Jakarta Barat',
             'Jl. Kebon Jeruk Raya No. 5, Jakarta Barat',
@@ -121,11 +120,13 @@ class DemoDataSeeder extends Seeder
             'Campuran' => 1000,
         ];
 
-        // Generate ~8-15 completed transactions per month for 12 months
-        for ($monthsAgo = 12; $monthsAgo >= 0; $monthsAgo--) {
-            // More transactions in recent months (growth trend)
-            $txCount = rand(6, 10) + max(0, 12 - $monthsAgo);
+        // Generate exactly 100 transactions for Untar and 50 for Tomang
+        $branchConfigs = [
+            'Bank Sampah Untar' => 100,
+            'Bank Sampah Tomang' => 50,
+        ];
 
+        foreach ($branchConfigs as $branch => $txCount) {
             for ($i = 0; $i < $txCount; $i++) {
                 $user = $createdUsers[array_rand($createdUsers)];
                 $category = $categories[array_rand($categories)];
@@ -135,7 +136,9 @@ class DemoDataSeeder extends Seeder
                 $pricePerKg = $priceMap[$category] ?? 1000;
                 $totalPrice = (int) ($actualWeight * $pricePerKg);
 
-                $createdAt = now()->subMonths($monthsAgo)->addDays(rand(0, 27))->addHours(rand(8, 17));
+                // Distribute evenly between 7 and 365 days ago
+                $daysAgo = rand(7, 365);
+                $createdAt = now()->subDays($daysAgo)->addHours(rand(8, 17));
                 $updatedAt = (clone $createdAt)->addDays(rand(1, 3));
 
                 $txData = [
@@ -146,13 +149,12 @@ class DemoDataSeeder extends Seeder
                     'method' => $method,
                     'status' => 'complete',
                     'total_price' => $totalPrice,
+                    'dropoff_location' => $branch, // Set dropoff_location to specific branch
                     'created_at' => $createdAt,
                     'updated_at' => $updatedAt,
                 ];
 
-                if ($method === 'Drop-off') {
-                    $txData['dropoff_location'] = $locations[array_rand($locations)];
-                } else {
+                if ($method === 'Pick-up') {
                     $txData['pickup_address'] = $pickupAddresses[array_rand($pickupAddresses)];
                     $txData['pickup_datetime'] = $createdAt->addDay();
                 }
@@ -166,12 +168,13 @@ class DemoDataSeeder extends Seeder
             [
                 'user_id' => $createdUsers[0]->id, 'category' => 'Plastik / PET',
                 'est_weight' => 2.5, 'method' => 'Drop-off', 'status' => 'pending',
-                'dropoff_location' => 'Bank Sampah Untar (Kampus 1, Jl. Letjen S. Parman)',
+                'dropoff_location' => 'Bank Sampah Untar',
                 'created_at' => now(),
             ],
             [
                 'user_id' => $createdUsers[1]->id, 'category' => 'Kardus / Kertas',
                 'est_weight' => 10.0, 'method' => 'Pick-up', 'status' => 'pending',
+                'dropoff_location' => 'Bank Sampah Untar',
                 'pickup_address' => 'Jl. Kebon Jeruk Raya No. 5, Jakarta Barat',
                 'pickup_datetime' => now()->addDay(),
                 'created_at' => now()->subDay(),
@@ -179,6 +182,7 @@ class DemoDataSeeder extends Seeder
             [
                 'user_id' => $createdUsers[3]->id, 'category' => 'Plastik / PET',
                 'est_weight' => 4.0, 'method' => 'Pick-up', 'status' => 'weighing',
+                'dropoff_location' => 'Bank Sampah Untar',
                 'pickup_address' => 'Jl. Grogol Petamburan No. 88, Jakarta Barat',
                 'pickup_datetime' => now(),
                 'created_at' => now()->subDays(1),
@@ -187,12 +191,13 @@ class DemoDataSeeder extends Seeder
                 'user_id' => $createdUsers[0]->id, 'category' => 'Campuran',
                 'est_weight' => 3.0, 'method' => 'Drop-off', 'status' => 'rejected',
                 'reject_reason' => 'Sampah tercampur dengan limbah medis B3 (jarum suntik).',
-                'dropoff_location' => 'Bank Sampah Untar (Kampus 1, Jl. Letjen S. Parman)',
+                'dropoff_location' => 'Bank Sampah Untar',
                 'created_at' => now()->subDays(3),
             ],
             [
                 'user_id' => $createdUsers[8]->id, 'category' => 'Kardus / Kertas',
                 'est_weight' => 12.0, 'method' => 'Pick-up', 'status' => 'pending',
+                'dropoff_location' => 'Bank Sampah Tomang',
                 'pickup_address' => 'Jl. Daan Mogot Km. 3 No. 15, Jakarta Barat',
                 'pickup_datetime' => now()->addDays(2),
                 'created_at' => now(),
@@ -200,6 +205,7 @@ class DemoDataSeeder extends Seeder
             [
                 'user_id' => $createdUsers[0]->id, 'category' => 'Besi / Logam',
                 'est_weight' => 69.70, 'method' => 'Pick-up', 'status' => 'pending',
+                'dropoff_location' => 'Bank Sampah Tomang',
                 'pickup_address' => 'Jl. Citra Garden No. 22, Jakarta Barat',
                 'pickup_datetime' => now()->addDay(),
                 'created_at' => now(),
@@ -207,6 +213,7 @@ class DemoDataSeeder extends Seeder
             [
                 'user_id' => $createdUsers[0]->id, 'category' => 'Plastik / PET',
                 'est_weight' => 69.70, 'method' => 'Pick-up', 'status' => 'pending',
+                'dropoff_location' => 'Bank Sampah Tomang',
                 'pickup_address' => 'Jl. Tomang Raya No. 45, Jakarta Barat',
                 'pickup_datetime' => now()->addDay(),
                 'created_at' => now(),
@@ -215,7 +222,7 @@ class DemoDataSeeder extends Seeder
                 'user_id' => $createdUsers[4]->id, 'category' => 'Besi / Logam',
                 'est_weight' => 8.5, 'method' => 'Drop-off', 'status' => 'rejected',
                 'reject_reason' => 'Kategori sampah tidak sesuai',
-                'dropoff_location' => 'Bank Sampah Tomang (Jl. Tomang Raya No 10)',
+                'dropoff_location' => 'Bank Sampah Tomang',
                 'created_at' => now()->subDays(5),
             ],
         ];

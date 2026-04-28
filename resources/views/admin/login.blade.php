@@ -18,15 +18,12 @@
             <form action="{{ route('admin.login.post') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-2">Pilih Cabang Bank Sampah</label>
-                    <select name="branch" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-green-500">
-                        <option value="Bank Sampah Untar">Bank Sampah Untar (Kampus 1)</option>
-                        <option value="Bank Sampah Tomang">Bank Sampah Tomang Raya</option>
-                        <option value="Bank Sampah Grogol">Bank Sampah Grogol</option>
-                    </select>
+                    <label class="block text-sm font-bold text-slate-600 mb-2">Username Admin</label>
+                    <input type="text" name="username" placeholder="Contoh: admin_untar" value="{{ old('username') }}" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-green-500" required>
+                    @error('username') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-slate-600 mb-2">Password Admin</label>
+                    <label class="block text-sm font-bold text-slate-600 mb-2">Password</label>
                     <input type="password" name="password" placeholder="••••••••" class="w-full p-3 border border-slate-200 rounded-xl bg-slate-50 outline-none focus:border-green-500" required>
                     @error('password') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
